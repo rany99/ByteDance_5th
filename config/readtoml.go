@@ -1,4 +1,4 @@
-package readtoml
+package config
 
 import (
 	"fmt"
