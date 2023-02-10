@@ -19,3 +19,8 @@ database = 0
 [server]
 ip = "115.156.212.181"
 port = 8080
+
+#ffmpeg路径及封面保存路径
+[path]
+ffmpeg_path = "D:\\go_project\\ByteDance_5th\\cover\\ffmpeg\\ffmpeg.exe"
+static_source_path = "D:\\go_project\\ByteDance_5th\\static"

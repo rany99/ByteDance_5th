@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// mysql连接信息
+// Mysql mysql连接信息
 type Mysql struct {
 	Host      string
 	Port      int
@@ -19,45 +19,50 @@ type Mysql struct {
 	Loc       string
 }
 
-// 服务器连接信息
+// Server 服务器连接信息
 type Server struct {
 	IP       string
 	Port     int
 	Database int
 }
 
-// Redis连接信息
+// Redis Redis连接信息
 type Redis struct {
-	Host     string
+	IP       string
 	Port     int
 	Database int
 }
 
-// 配置信息
+// Config 配置信息
 type Config struct {
-	DB Mysql  `toml:"mysql"`
-	RD Redis  `toml:"redis"`
-	SE Server `toml:"server"`
+	DB   Mysql  `toml:"mysql"`
+	RD   Redis  `toml:"redis"`
+	SE   Server `toml:"server"`
+	Path Path   `toml:"path"`
+}
+
+type Path struct {
+	FfmpegPath       string `toml:"ffmpeg_path"`
+	StaticSourcePath string `toml:"static_source_path"`
 }
 
 var Conf Config
 
 // 初始化
 func init() {
-	_, err := toml.DecodeFile("D:\\go_project\\ByteDance_5th\\config\\config.toml", &Conf)
-	if err != nil {
+	if _, err := toml.DecodeFile("D:\\go_project\\ByteDance_5th\\config\\config.toml", &Conf); err != nil {
 		panic(err)
 	}
 	//去除左右空格
 	strings.Trim(Conf.DB.Host, " ")
-	strings.Trim(Conf.RD.Host, " ")
+	strings.Trim(Conf.RD.IP, " ")
 	strings.Trim(Conf.SE.IP, " ")
 	log.Println("DB.Host:", Conf.DB.Host)
-	log.Println("RD.Host:", Conf.RD.Host)
+	log.Println("RD.Host:", Conf.RD.IP)
 	log.Println("SE.IP:", Conf.SE.IP)
 }
 
-// 获取数据库连接
+// GetConnectionString 获取数据库连接
 func GetConnectionString() string {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=%v&loc=%s",
 		Conf.DB.Username,

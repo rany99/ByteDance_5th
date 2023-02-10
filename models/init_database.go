@@ -20,7 +20,7 @@ func InitDB() error {
 	if err != nil {
 		panic(err)
 	}
-	err = DB.AutoMigrate(&UserInfo{}, &User{})
+	err = DB.AutoMigrate(&UserInfo{}, &Video{}, &Comment{}, &User{})
 	if err != nil {
 		log.Println("init failed")
 		return err
