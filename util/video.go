@@ -12,12 +12,12 @@ import (
 
 // GetVideoUrl 返回url
 func GetVideoUrl(fileName string) string {
-	return fmt.Sprintf("http://%s:%d/videos/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
+	return fmt.Sprintf("http://%s:%d/static/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
 }
 
 // GetImageUrl 返回url
 func GetImageUrl(fileName string) string {
-	return fmt.Sprintf("http://%s:%d/images/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
+	return fmt.Sprintf("http://%s:%d/static/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
 }
 
 // NewUnicFileName 生成文件名
@@ -51,19 +51,3 @@ func FillVideos(userid int64, videos *[]*models.Video) (*time.Time, error) {
 	}
 	return &latestTime, nil
 }
-
-// SaveImageFromVideo 截取视频封面
-//func SaveImageFromVideo(name string, isDebug bool) error {
-//	v2i := NewVideoToCover()
-//	if isDebug {
-//		v2i.Debug()
-//	}
-//	v2i.InputPath = filepath.Join(config.Conf.Path.StaticSourcePath, name+GetDefaultVideoSuffix())
-//	v2i.OutputPath = filepath.Join(config.Conf.Path.StaticSourcePath, name+GetDefaultImageSuffix())
-//	v2i.FrameCount = 1
-//	queryString, err := v2i.GetQueryString()
-//	if err != nil {
-//		return err
-//	}
-//	return v2i.ExecCommand(queryString)
-//}

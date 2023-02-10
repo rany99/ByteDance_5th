@@ -106,3 +106,15 @@ func (u *UserInfoDao) GetFollowerListById(id int64, userList *[]*UserInfo) error
 	}
 	return nil
 }
+
+// IsUserInfoExist 判断用户表中是否存在该id的用户
+func (u *UserInfoDao) IsUserInfoExist(id int64) error {
+	var userInfo UserInfo
+	if err := DB.Where("id = ?", id).Select("id").First(&userInfo).Error; err != nil {
+		return err
+	}
+	if userInfo.Id == 0 {
+		return errors.New("用户不存在")
+	}
+	return nil
+}

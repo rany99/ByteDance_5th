@@ -19,11 +19,11 @@ type User struct {
 
 var (
 	userLoginDao *LoginDao
-	//避免重复注册
+	// LoginOnce 避免重复注册
 	LoginOnce sync.Once
 )
 
-// 登陆
+// UserLogin 登陆
 func (u *LoginDao) UserLogin(username, password string, login *User) error {
 	if login == nil {
 		return errors.New("输入User结构体为空")
@@ -46,7 +46,7 @@ func NewLoginDao() *LoginDao {
 	return userLoginDao
 }
 
-// 查询账户是否已经存在
+// UserAlreadyExist 查询账户是否已经存在
 func (u *LoginDao) UserAlreadyExist(username string) bool {
 	var user User
 	log.Println(username)

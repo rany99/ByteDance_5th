@@ -35,15 +35,9 @@ type Redis struct {
 
 // Config 配置信息
 type Config struct {
-	DB   Mysql  `toml:"mysql"`
-	RD   Redis  `toml:"redis"`
-	SE   Server `toml:"server"`
-	Path Path   `toml:"path"`
-}
-
-type Path struct {
-	FfmpegPath       string `toml:"ffmpeg_path"`
-	StaticSourcePath string `toml:"static_source_path"`
+	DB Mysql  `toml:"mysql"`
+	RD Redis  `toml:"redis"`
+	SE Server `toml:"server"`
 }
 
 var Conf Config
@@ -58,7 +52,7 @@ func init() {
 	strings.Trim(Conf.RD.IP, " ")
 	strings.Trim(Conf.SE.IP, " ")
 	log.Println("DB.Host:", Conf.DB.Host)
-	log.Println("RD.Host:", Conf.RD.IP)
+	log.Println("RD.IP:", Conf.RD.IP)
 	log.Println("SE.IP:", Conf.SE.IP)
 }
 

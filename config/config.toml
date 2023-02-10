@@ -11,7 +11,7 @@ loc = "Local"
 
 #redis，用于存储每个用户是否对某个视频点赞，以及关注了某个人（主要用于反馈前端情况，比如点了赞后会变成红心
 [redis]
-host = "127.0.0.1"
+ip = "127.0.0.1"
 port = 6379
 database = 0
 
@@ -19,8 +19,3 @@ database = 0
 [server]
 ip = "115.156.212.181"
 port = 8080
-
-#ffmpeg路径及封面保存路径
-[path]
-ffmpeg_path = "D:\\go_project\\ByteDance_5th\\cover\\ffmpeg\\ffmpeg.exe"
-static_source_path = "D:\\go_project\\ByteDance_5th\\static"
