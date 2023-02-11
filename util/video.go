@@ -20,7 +20,7 @@ func GetImageUrl(fileName string) string {
 	return fmt.Sprintf("http://%s:%d/static/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
 }
 
-// NewUnicFileName 生成文件名
+// NewUnicFileName 生成唯一文件名
 func NewUnicFileName(userid int64) string {
 	var count int64
 	if err := models.NewVideoDao().QueryVideoCntByUserId(userid, &count); err != nil {

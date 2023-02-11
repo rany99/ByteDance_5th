@@ -3,8 +3,6 @@ package video
 import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/util"
-	"fmt"
-	"log"
 )
 
 type PostVideoFlow struct {
@@ -25,8 +23,8 @@ func (p *PostVideoFlow) Do() error {
 }
 
 func (p *PostVideoFlow) GenerateUrl() {
-	log.Println("VideoName", p.VideoName)
-	log.Println("CoverName", p.CoverName)
+	//log.Println("VideoName", p.VideoName)
+	//log.Println("CoverName", p.CoverName)
 	p.VideoName = util.GetVideoUrl(p.VideoName)
 	p.CoverName = util.GetImageUrl(p.CoverName)
 }
@@ -38,7 +36,7 @@ func (p *PostVideoFlow) publish() error {
 		CoverUrl:   p.CoverName,
 		Title:      p.Title,
 	}
-	fmt.Println("publish-UserInfoId", video.UserInfoId)
+	//log.Println("publish-UserInfoId", video.UserInfoId)
 	return models.NewVideoDao().AddVideoToDB(video)
 }
 

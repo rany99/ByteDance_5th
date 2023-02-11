@@ -97,7 +97,7 @@ func (v *VideoDao) QueryVideoListByLastTimeAndLimit(latestTime time.Time, limit 
 	}
 	log.Println("latestTime:", latestTime)
 	err := DB.Model(&Video{}).Where("created_at < ?", latestTime).
-		Order("created_at ASC").Limit(limit).
+		Order("created_at DESC").Limit(limit).
 		Select([]string{"id", "user_info_id", "play_url", "cover_url", "favorite_count", "comment_count", "is_favorite", "title", "created_at", "updated_at"}).
 		Find(list).Error
 	log.Println("从数据库中获得的List长度为：", len(*list))
@@ -131,7 +131,7 @@ func (v *VideoDao) FavoriteCountSubOneByVideoId(userid int64, videoId int64) err
 }
 
 // QueryFavorListByUserId 获取用户点赞视频列表
-func (v *VideoDao) QueryFavorListByUserId(userid, videoid int64, list *[]*Video) error {
+func (v *VideoDao) QueryFavorListByUserId(userid int64, list *[]*Video) error {
 	if err := DB.Raw("SELECT v.* FROM user_favor_videos u , videos v WHERE u.user_info_id = ? AND u.video_id = v.id", userid).Scan(list).Error; err != nil {
 		return err
 	}

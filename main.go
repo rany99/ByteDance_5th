@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	r := routers.RoutersInit()
+	r := routers.DouSheng_RoutersInit()
 	err := r.Run(fmt.Sprintf(":%d", config.Conf.SE.Port)) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	if err != nil {
 		return

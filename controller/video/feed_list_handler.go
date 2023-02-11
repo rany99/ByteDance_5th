@@ -48,12 +48,11 @@ func NewProxyFeedList(ctx *gin.Context) *ProxyFeedList {
 func (p *ProxyFeedList) DoWithoutToken() error {
 	var latestTime time.Time
 	timeStamp := p.Query("latest_time")
-	log.Println("timeStamp:", timeStamp)
 	timeMs, err := strconv.ParseInt(timeStamp, 10, 64)
-	log.Println("timeMs:", timeMs)
 	if err == nil {
 		latestTime = time.Unix(0, timeMs*1e6)
 	}
+	log.Println("无token时间戳======>>>>>", latestTime)
 	list, err := video.QueryFeedList(0, latestTime)
 	if err != nil {
 		return err

@@ -3,11 +3,10 @@ package video
 import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/util"
-	"log"
 	"time"
 )
 
-const Limit int = 30
+const Limit int = 2
 
 type FeedList struct {
 	List     []*models.Video `json:"video_list,omitempty"`
@@ -74,7 +73,6 @@ func (q *QueryFeedListFlow) GetData() error {
 
 // PackData 封装数据
 func (q *QueryFeedListFlow) PackData() error {
-	log.Println("list_Len", len(q.videos))
 	q.feedVideo = &FeedList{
 		List:     q.videos,
 		NextTime: q.nextTime,
