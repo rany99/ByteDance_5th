@@ -96,7 +96,7 @@ func (v *VideoDao) QueryVideoListByLastTimeAndLimit(latestTime time.Time, limit 
 		return errors.New("QueryVideoListByLastTimeAndLimit：list指针为空")
 	}
 	log.Println("latestTime:", latestTime)
-	err := DB.Model(&Video{}).Where("created_at<?", latestTime).
+	err := DB.Model(&Video{}).Where("created_at < ?", latestTime).
 		Order("created_at ASC").Limit(limit).
 		Select([]string{"id", "user_info_id", "play_url", "cover_url", "favorite_count", "comment_count", "is_favorite", "title", "created_at", "updated_at"}).
 		Find(list).Error

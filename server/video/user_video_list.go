@@ -4,10 +4,11 @@ import (
 	"ByteDance_5th/cache"
 	"ByteDance_5th/models"
 	"errors"
+	"log"
 )
 
 type PublishList struct {
-	videos []*models.Video `json:"video_list,omitempty"`
+	Videos []*models.Video `json:"video_list,omitempty"`
 }
 
 type QueryPublishListByUidFlow struct {
@@ -53,6 +54,7 @@ func (q *QueryPublishListByUidFlow) PackData() error {
 		q.videos[i].Author = userInfo
 		q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
 	}
-	q.videoList = &PublishList{videos: q.videos}
+	log.Println("PackData:", len(q.videos))
+	q.videoList = &PublishList{Videos: q.videos}
 	return nil
 }

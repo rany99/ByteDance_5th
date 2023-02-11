@@ -4,6 +4,7 @@ import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/server/video"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -27,6 +28,7 @@ func QueryVideoListController(ctx *gin.Context) {
 	rawId, _ := ctx.Get("user_id")
 	uid, ok := rawId.(int64)
 	if !ok {
+		log.Println("QueryVideoListController：uid解析错误")
 		p.QueryVideoListFailed("uid解析错误")
 	}
 	if err := p.DoQueryVideoListByUid(uid); err != nil {
@@ -49,7 +51,6 @@ func (p *ProxyQueryVideoList) QueryVideoListOk(list *video.PublishList) {
 	p.ctx.JSON(http.StatusOK, ListResponse{
 		CommonResponse: models.CommonResponse{
 			StatusCode: 0,
-			StatusMsg:  "",
 		},
 		PublishList: list,
 	})

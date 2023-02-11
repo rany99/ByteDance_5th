@@ -51,11 +51,8 @@ func (q *QueryFeedListFlow) IsAlreadyLogin() {
 	if q.userid > 0 {
 		//
 	}
-	log.Println(time.Now())
-	q.latestTime = time.Now()
 	if q.latestTime.IsZero() {
 		q.latestTime = time.Now()
-		log.Println("latestTime->time.Now", q.latestTime)
 	}
 }
 
@@ -77,7 +74,7 @@ func (q *QueryFeedListFlow) GetData() error {
 
 // PackData 封装数据
 func (q *QueryFeedListFlow) PackData() error {
-	log.Println("listLen", len(q.videos))
+	log.Println("list_Len", len(q.videos))
 	q.feedVideo = &FeedList{
 		List:     q.videos,
 		NextTime: q.nextTime,

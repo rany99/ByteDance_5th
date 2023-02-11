@@ -20,8 +20,8 @@ type FeedResponse struct {
 func FeedListHandler(ctx *gin.Context) {
 	p := NewProxyFeedList(ctx)
 	token, ok := ctx.GetQuery("token")
+	log.Println(token)
 	if !ok || token == "" {
-		log.Println("无token")
 		err := p.DoWithoutToken()
 		if err != nil {
 			p.GetFeedListFailed(err.Error())
@@ -51,7 +51,7 @@ func (p *ProxyFeedList) DoWithoutToken() error {
 	log.Println("timeStamp:", timeStamp)
 	timeMs, err := strconv.ParseInt(timeStamp, 10, 64)
 	log.Println("timeMs:", timeMs)
-	if err != nil {
+	if err == nil {
 		latestTime = time.Unix(0, timeMs*1e6)
 	}
 	list, err := video.QueryFeedList(0, latestTime)
@@ -71,7 +71,7 @@ func (p *ProxyFeedList) DoWithToken(token string) error {
 		timeStamp := p.Query("latest_time")
 		var latestTime time.Time
 		iniTime, err := strconv.ParseInt(timeStamp, 10, 24)
-		if err != nil {
+		if err == nil {
 			latestTime = time.Unix(0, iniTime*1e6)
 		}
 		list, err := video.QueryFeedList(claim.UserId, latestTime)

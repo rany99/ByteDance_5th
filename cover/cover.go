@@ -9,7 +9,13 @@ import (
 	"os"
 )
 
+//videoPath 视频保存路径
+//snapShotPath 截图保存路径
+//frameNum 截图帧数
+
+// SnapShotFromVideo 生成截图
 func SnapShotFromVideo(videoPath, snapShotPath string, frameNum int) (err error) {
+
 	buf := bytes.NewBuffer(nil)
 	err = ffmpeg.Input(videoPath).
 		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
