@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -27,11 +28,13 @@ func NewCommentDao() *CommentDAO {
 
 // CreateAndCntAddOne 创建评论并将视频评论数量加一
 func (c *CommentDAO) CreateAndCntAddOne(comment *Comment) error {
+	log.Println("CreateAndCntAddOne")
 	if comment == nil {
 		return errors.New("传入Comment指针为空")
 	}
 	return DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(comment).Error; err != nil {
+			log.Println("CreateAndCntAddOne：评论未能入库")
 			return err
 		}
 		if err := tx.Exec("UPDATE videos v SET v.comment_count = v.comment_count+1 WHERE v.id=?", comment.VideoId).Error; err != nil {

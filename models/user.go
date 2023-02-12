@@ -52,7 +52,6 @@ func (u *LoginDao) UserAlreadyExist(username string) bool {
 	log.Println(username)
 	DB.Where("username = ?", username).First(&user)
 	if user.Id == 0 {
-		log.Println("无用户记录")
 		return false
 	}
 	return true

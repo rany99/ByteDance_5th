@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"ByteDance_5th/controller/comment"
 	"ByteDance_5th/controller/login"
 	"ByteDance_5th/controller/userinfo"
 	"ByteDance_5th/controller/video"
@@ -9,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DouSheng_RoutersInit() *gin.Engine {
+func DoushengRoutersinit() *gin.Engine {
 
 	models.InitDB()
 
@@ -35,5 +36,6 @@ func DouSheng_RoutersInit() *gin.Engine {
 	//互动接口
 	//PostFavorHandler 点赞
 	BG.POST("/favorite/action/", middle.Permission(), video.PostFavorHandler)
+	BG.POST("/comment/action/", middle.Permission(), comment.PostCommentController)
 	return r
 }
