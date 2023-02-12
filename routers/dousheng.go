@@ -34,8 +34,11 @@ func DoushengRoutersinit() *gin.Engine {
 	BG.GET("/publish/list/", middle.NoAuthToGetUserId(), video.QueryVideoListController)
 
 	//互动接口
-	//PostFavorHandler 点赞
+	//赞操作
 	BG.POST("/favorite/action/", middle.Permission(), video.PostFavorHandler)
+	//评论操作
 	BG.POST("/comment/action/", middle.Permission(), comment.PostCommentController)
+	//评论列表
+	BG.GET("/comment/list/", middle.Permission(), comment.QueryCommentListController)
 	return r
 }
