@@ -48,7 +48,7 @@ func (q *QueryFollowsFlow) CheckJson() error {
 func (q *QueryFollowsFlow) GetData() error {
 	var userList []*models.UserInfo
 	log.Println(q.uid)
-	if err := models.NewUserInfoDAO().GetFollowListById(q.uid, &userList); err != nil {
+	if err := models.NewUserInfoDAO().GetFollowsById(q.uid, &userList); err != nil {
 		return err
 	}
 	for i, _ := range userList {

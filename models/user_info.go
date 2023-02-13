@@ -88,8 +88,8 @@ func (u *UserInfoDao) AFollowB(a, b int64) error {
 	})
 }
 
-// GetFollowListById 获取关注列表
-func (u *UserInfoDao) GetFollowListById(id int64, userList *[]*UserInfo) error {
+// GetFollowsById 获取关注列表
+func (u *UserInfoDao) GetFollowsById(id int64, userList *[]*UserInfo) error {
 	if userList == nil {
 		return errors.New("传入指针为空")
 	}
@@ -100,8 +100,8 @@ func (u *UserInfoDao) GetFollowListById(id int64, userList *[]*UserInfo) error {
 	return nil
 }
 
-// GetFollowerListById 获取粉丝列表
-func (u *UserInfoDao) GetFollowerListById(id int64, userList *[]*UserInfo) error {
+// GetFansById 获取粉丝列表
+func (u *UserInfoDao) GetFansById(id int64, userList *[]*UserInfo) error {
 	if userList == nil {
 		return errors.New("传入指针为空")
 	}

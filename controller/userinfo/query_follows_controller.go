@@ -32,12 +32,13 @@ func NewProxyQueryFollows(ctx *gin.Context) *ProxyQueryFollows {
 func (p *ProxyQueryFollows) Do() {
 	if err := p.ParseJSON(); err != nil {
 		p.SendFailed(err.Error())
+		return
 	}
 	if err := p.GetData(); err != nil {
 		p.SendFailed(err.Error())
 		return
 	}
-	p.SendSucceed("请求成功")
+	p.SendSucceed("查询成功")
 }
 
 func (p *ProxyQueryFollows) SendFailed(msg string) {
