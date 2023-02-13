@@ -2,7 +2,7 @@ package userinfo
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/server/user_info"
+	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,12 +10,12 @@ import (
 
 type FollowsResponse struct {
 	models.CommonResponse
-	*user_info.Follows
+	*userinfo.Follows
 }
 
 type ProxyQueryFollows struct {
 	uid int64
-	*user_info.Follows
+	*userinfo.Follows
 	*gin.Context
 }
 
@@ -69,7 +69,7 @@ func (p *ProxyQueryFollows) ParseJSON() error {
 }
 
 func (p *ProxyQueryFollows) GetData() error {
-	list, err := user_info.QueryFollowList(p.uid)
+	list, err := userinfo.QueryFollowList(p.uid)
 	if err != nil {
 		return err
 	}

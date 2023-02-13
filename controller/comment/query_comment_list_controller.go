@@ -22,11 +22,11 @@ type ProxyCommentListController struct {
 }
 
 func QueryCommentListController(ctx *gin.Context) {
-	NewProxyCommentListHandler(ctx).Do()
+	NewProxyCommentListHandler(ctx).Operation()
 }
 
-func (p *ProxyCommentListController) Do() {
-	if err := p.ParseJson(); err != nil {
+func (p *ProxyCommentListController) Operation() {
+	if err := p.ParseJSON(); err != nil {
 		p.SendFailed(err.Error())
 		return
 	}
@@ -38,13 +38,15 @@ func (p *ProxyCommentListController) Do() {
 	p.SendSucceed(cList)
 }
 
-func (p *ProxyCommentListController) ParseJson() error {
-	rawUid, _ := p.Get("user_id")
-	uid, ok := rawUid.(int64)
-	if !ok {
+// ParseJSON 解析JSON信息
+func (p *ProxyCommentListController) ParseJSON() error {
+	rawUid := p.Query("user_id")
+	uid, err := strconv.ParseInt(rawUid, 10, 64)
+	if err != nil {
 		return errors.New("uid解析错误")
 	}
-	vid, err := strconv.ParseInt(p.Query("video_id"), 10, 64)
+	rawVid := p.Query("video_id")
+	vid, err := strconv.ParseInt(rawVid, 10, 64)
 	if err != nil {
 		return err
 	}
@@ -52,6 +54,7 @@ func (p *ProxyCommentListController) ParseJson() error {
 	return nil
 }
 
+// SendFailed 失败
 func (p *ProxyCommentListController) SendFailed(msg string) {
 	p.JSON(http.StatusOK, CtListResponse{
 		CommonResponse: models.CommonResponse{
@@ -61,6 +64,7 @@ func (p *ProxyCommentListController) SendFailed(msg string) {
 	})
 }
 
+// SendSucceed 成功
 func (p *ProxyCommentListController) SendSucceed(commentList *comment.CList) {
 	p.JSON(http.StatusOK, CtListResponse{
 		CommonResponse: models.CommonResponse{
@@ -71,6 +75,7 @@ func (p *ProxyCommentListController) SendSucceed(commentList *comment.CList) {
 	})
 }
 
+// NewProxyCommentListHandler 创建防火层
 func NewProxyCommentListHandler(ctx *gin.Context) *ProxyCommentListController {
 	return &ProxyCommentListController{
 		Context: ctx,

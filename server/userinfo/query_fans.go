@@ -1,4 +1,4 @@
-package user_info
+package userinfo
 
 import (
 	"ByteDance_5th/cache"

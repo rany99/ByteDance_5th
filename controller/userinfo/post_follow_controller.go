@@ -2,7 +2,7 @@ package userinfo
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/server/user_info"
+	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -77,15 +77,15 @@ func (p *ProxyPostFollow) SendSuccessfully() {
 }
 
 func (p *ProxyPostFollow) FollowAction() error {
-	if stateCode := user_info.PostFollow(p.uid, p.toUserId, p.actionType); stateCode != user_info.NoErrOR0 {
+	if stateCode := userinfo.PostFollow(p.uid, p.toUserId, p.actionType); stateCode != userinfo.NoErrOR0 {
 		switch stateCode {
-		case user_info.ERRTYPE1:
+		case userinfo.ERRTYPE1:
 			return errors.New("被关注的用户不存在")
-		case user_info.ERRTYPE2:
+		case userinfo.ERRTYPE2:
 			return errors.New("传入ActionType只能为1或2")
-		case user_info.ERRTYPE3:
+		case userinfo.ERRTYPE3:
 			return errors.New("不能自己关注自己")
-		case user_info.ERRTYPE4:
+		case userinfo.ERRTYPE4:
 			return errors.New("您已关注，请勿重复关注")
 		}
 	}

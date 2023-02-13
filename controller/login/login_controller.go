@@ -12,7 +12,7 @@ type UserLoginResponse struct {
 	*login.LoginResponse
 }
 
-func UserLoginHandler(c *gin.Context) {
+func UserLoginController(c *gin.Context) {
 	username := c.Query("username")
 	raw, _ := c.Get("password")
 	password, ok := raw.(string)

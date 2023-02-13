@@ -2,7 +2,7 @@ package userinfo
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/server/user_info"
+	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,12 +10,12 @@ import (
 
 type QueryFansResponse struct {
 	models.CommonResponse
-	*user_info.FansResponse
+	*userinfo.FansResponse
 }
 
 type ProxyQueryFansController struct {
 	uid int64
-	*user_info.FansResponse
+	*userinfo.FansResponse
 	*gin.Context
 }
 
@@ -50,7 +50,7 @@ func (p *ProxyQueryFansController) ParseJSON() error {
 }
 
 func (p *ProxyQueryFansController) GetData() error {
-	fans, err := user_info.QueryFans(p.uid)
+	fans, err := userinfo.QueryFans(p.uid)
 	if err != nil {
 		return err
 	}

@@ -26,7 +26,7 @@ func DoushengRoutersinit() *gin.Engine {
 	//用户注册
 	BG.POST("/user/register/", middle.ShaMiddleWare(), login.RegisterHandler)
 	//用户登录
-	BG.POST("/user/login/", middle.ShaMiddleWare(), login.UserLoginHandler)
+	BG.POST("/user/login/", middle.ShaMiddleWare(), login.UserLoginController)
 	//用户信息
 	BG.GET("/user/", middle.Permission(), userinfo.UserInfoHandler)
 	//投稿接口
@@ -51,5 +51,7 @@ func DoushengRoutersinit() *gin.Engine {
 	BG.GET("/relation/follow/list/", middle.NoAuthToGetUserId(), userinfo.QueryFollowsController)
 	//粉丝列表
 	BG.GET("/relation/follower/list/", middle.NoAuthToGetUserId(), userinfo.QueryFansController)
+	//朋友列表
+	BG.GET("/relation/friend/list/", middle.NoAuthToGetUserId(), userinfo.QueryFansController)
 	return r
 }

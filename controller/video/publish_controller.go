@@ -1,7 +1,6 @@
 package video
 
 import (
-	"ByteDance_5th/cover"
 	"ByteDance_5th/models"
 	"ByteDance_5th/server/video"
 	"ByteDance_5th/util"
@@ -64,7 +63,7 @@ func PublishHandler(ctx *gin.Context) {
 		log.Println(snapShotFileName)
 		snapShotPath := filepath.Join("./public", snapShotFileName)
 		log.Println(snapShotPath)
-		if err = cover.SnapShotFromVideo(savePath, snapShotPath, 1); err != nil {
+		if err = util.SnapShotFromVideo(savePath, snapShotPath, 1); err != nil {
 			PublishError(ctx, err.Error())
 			continue
 		}

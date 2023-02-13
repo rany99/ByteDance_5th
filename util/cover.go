@@ -1,6 +1,6 @@
 //----------!!!Attention:请确保ffmpeg.exe已经置于GoPath路径下!!!----------
 
-package cover
+package util
 
 import (
 	"bytes"
