@@ -12,6 +12,7 @@ import (
 
 func DoushengRoutersinit() *gin.Engine {
 
+	//数据库初始化
 	models.InitDB()
 
 	r := gin.Default()
@@ -36,6 +37,8 @@ func DoushengRoutersinit() *gin.Engine {
 	//互动接口
 	//赞操作
 	BG.POST("/favorite/action/", middle.Permission(), video.PostFavorHandler)
+	//喜欢列表
+	BG.GET("/favorite/list/", middle.NoAuthToGetUserId(), video.QueryFavoriteListController)
 	//评论操作
 	BG.POST("/comment/action/", middle.Permission(), comment.PostCommentController)
 	//评论列表
