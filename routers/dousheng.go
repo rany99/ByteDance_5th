@@ -43,5 +43,9 @@ func DoushengRoutersinit() *gin.Engine {
 	BG.POST("/comment/action/", middle.Permission(), comment.PostCommentController)
 	//评论列表
 	BG.GET("/comment/list/", middle.Permission(), comment.QueryCommentListController)
+
+	//社交接口
+	//关注操作
+	BG.POST("/relation/action/", middle.Permission(), userinfo.PostFollowController)
 	return r
 }

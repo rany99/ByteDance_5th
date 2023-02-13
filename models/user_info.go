@@ -3,7 +3,6 @@ package models
 import (
 	"errors"
 	"gorm.io/gorm"
-	"log"
 	"sync"
 )
 
@@ -56,17 +55,20 @@ func (u *UserInfoDao) AddUserInfo(userinfo *UserInfo) error {
 	return DB.Create(userinfo).Error
 }
 
-// AddUserFollow 查询用户是否存在该id的用户
-func (u *UserInfoDao) AddUserFollow(id int64) bool {
-	var userinfo UserInfo
-	err := DB.Where("id = ?", id).Select("id").First(&userinfo).Error
-	if err != nil {
-		log.Println(err)
-	}
-	if userinfo.Id == 0 {
-		return false
-	}
-	return true
+// NoAFollowB 取消关注关系
+func (u *UserInfoDao) NoAFollowB(a, b int64) error {
+	return DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("UPDATE user_infos SET follow_count=follow_count-1 WHERE id = ? AND follow_count>0", a).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("UPDATE user_infos SET follower_count=follower_count-1 WHERE id = ? AND follower_count>0", b).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("DELETE FROM `user_relations` WHERE user_info_id=? AND follow_id=?", a, b).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // AFollowB 建立关注关系
