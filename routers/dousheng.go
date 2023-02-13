@@ -47,5 +47,7 @@ func DoushengRoutersinit() *gin.Engine {
 	//社交接口
 	//关注操作
 	BG.POST("/relation/action/", middle.Permission(), userinfo.PostFollowController)
+	//关注列表
+	BG.GET("/relation/follow/list/", middle.NoAuthToGetUserId(), userinfo.QueryFollowsController)
 	return r
 }

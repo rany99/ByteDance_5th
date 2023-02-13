@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"gorm.io/gorm"
+	"log"
 	"sync"
 )
 
@@ -95,6 +96,7 @@ func (u *UserInfoDao) GetFollowListById(id int64, userList *[]*UserInfo) error {
 	if err := DB.Raw("SELECT u.* FROM user_relations r, user_infos u WHERE r.user_info_id = ? AND r.follow_id = u.id", id).Scan(userList).Error; err != nil {
 		return err
 	}
+	log.Println("GetFollowListById", len(*userList))
 	return nil
 }
 
