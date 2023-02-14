@@ -1,9 +1,9 @@
 package video
 
 import (
-	"ByteDance_5th/middle"
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/video"
+	"ByteDance_5th/util"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -13,14 +13,14 @@ import (
 )
 
 type FeedResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*video.FeedList
 }
 
-func FeedListHandler(ctx *gin.Context) {
+func FeedListController(ctx *gin.Context) {
 	p := NewProxyFeedList(ctx)
 	token, ok := ctx.GetQuery("token")
-	log.Println(token)
+	//log.Println(token)
 	if !ok || token == "" {
 		err := p.DoWithoutToken()
 		if err != nil {
@@ -28,7 +28,6 @@ func FeedListHandler(ctx *gin.Context) {
 		}
 		return
 	}
-
 	err := p.DoWithToken(token)
 	if err != nil {
 		p.GetFeedListFailed(err.Error())
@@ -52,7 +51,7 @@ func (p *ProxyFeedList) DoWithoutToken() error {
 	if err == nil {
 		latestTime = time.Unix(0, timeMs*1e6)
 	}
-	log.Println("无token时间戳======>>>>>", latestTime)
+	//log.Println("无token时间戳======>>>>>", latestTime)
 	list, err := video.QueryFeedList(0, latestTime)
 	if err != nil {
 		return err
@@ -63,7 +62,7 @@ func (p *ProxyFeedList) DoWithoutToken() error {
 
 // DoWithToken 登陆状态下的视频推送
 func (p *ProxyFeedList) DoWithToken(token string) error {
-	if claim, ok := middle.DecodeToken(token); ok {
+	if claim, ok := util.DecodeToken(token); ok {
 		if time.Now().Unix() > claim.ExpiresAt {
 			return errors.New("token已经过期")
 		}
@@ -89,7 +88,7 @@ func (p *ProxyFeedList) GetFeedListSuccessfully(feedList *video.FeedList) {
 		log.Println("GetFeedListSuccessfully：视频流指针为空")
 	}
 	p.JSON(http.StatusOK, FeedResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 			StatusMsg:  "",
 		},
@@ -101,7 +100,7 @@ func (p *ProxyFeedList) GetFeedListSuccessfully(feedList *video.FeedList) {
 // GetFeedListFailed 获取视频流失败
 func (p *ProxyFeedList) GetFeedListFailed(msg string) {
 	p.JSON(http.StatusOK, FeedResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},

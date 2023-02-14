@@ -1,7 +1,7 @@
 package userinfo
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 )
 
 type QueryFansResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*userinfo.FansResponse
 }
 
@@ -20,14 +20,14 @@ type ProxyQueryFansController struct {
 }
 
 func QueryFansController(ctx *gin.Context) {
-	NewProxyQueryFansController(ctx).Do()
+	NewProxyQueryFansController(ctx).Operation()
 }
 
 func NewProxyQueryFansController(ctx *gin.Context) *ProxyQueryFansController {
 	return &ProxyQueryFansController{Context: ctx}
 }
 
-func (p *ProxyQueryFansController) Do() {
+func (p *ProxyQueryFansController) Operation() {
 	if err := p.ParseJSON(); err != nil {
 		p.SendFailed(err.Error())
 		return
@@ -60,7 +60,7 @@ func (p *ProxyQueryFansController) GetData() error {
 
 func (p *ProxyQueryFansController) SendSucceed(msg string) {
 	p.JSON(http.StatusOK, QueryFansResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 			StatusMsg:  msg,
 		},
@@ -70,7 +70,7 @@ func (p *ProxyQueryFansController) SendSucceed(msg string) {
 
 func (p *ProxyQueryFansController) SendFailed(msg string) {
 	p.JSON(http.StatusOK, QueryFansResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},

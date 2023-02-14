@@ -1,7 +1,7 @@
 package video
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/video"
 	"ByteDance_5th/util"
 	"github.com/gin-gonic/gin"
@@ -78,7 +78,7 @@ func PublishHandler(ctx *gin.Context) {
 
 // PublishError 生成错误返回
 func PublishError(ctx *gin.Context, msg string) {
-	ctx.JSON(http.StatusOK, models.CommonResponse{
+	ctx.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 1,
 		StatusMsg:  msg,
 	})
@@ -86,7 +86,7 @@ func PublishError(ctx *gin.Context, msg string) {
 
 // PublishOK 生成成功返回
 func PublishOK(ctx *gin.Context, msg string) {
-	ctx.JSON(http.StatusOK, models.CommonResponse{
+	ctx.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 0,
 		StatusMsg:  msg,
 	})

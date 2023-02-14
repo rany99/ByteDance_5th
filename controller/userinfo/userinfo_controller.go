@@ -2,13 +2,14 @@ package userinfo
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type UserResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	UserInfo *models.UserInfo `json:"user"`
 }
 
@@ -20,7 +21,7 @@ func NewProxyUserInfo(c *gin.Context) *ProxyUserInfo {
 	return &ProxyUserInfo{c: c}
 }
 
-func UserInfoHandler(ctx *gin.Context) {
+func InfoController(ctx *gin.Context) {
 	p := NewProxyUserInfo(ctx)
 	raw, ok := ctx.Get("user_id")
 	if !ok {
@@ -51,13 +52,13 @@ func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId interface{}) error {
 
 func (p *ProxyUserInfo) UserInfoError(msg string) {
 	p.c.JSON(http.StatusOK, UserResponse{
-		CommonResponse: models.CommonResponse{StatusCode: 1, StatusMsg: msg},
+		CommonResponse: common.CommonResponse{StatusCode: 1, StatusMsg: msg},
 	})
 }
 
 func (p *ProxyUserInfo) UserInfoOk(user *models.UserInfo) {
 	p.c.JSON(http.StatusOK, UserResponse{
-		CommonResponse: models.CommonResponse{StatusCode: 0},
+		CommonResponse: common.CommonResponse{StatusCode: 0},
 		UserInfo:       user,
 	})
 }

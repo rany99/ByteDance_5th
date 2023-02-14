@@ -1,7 +1,7 @@
 package comment
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/comment"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 )
 
 type CtListResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*comment.CList
 }
 
@@ -57,7 +57,7 @@ func (p *ProxyCommentListController) ParseJSON() error {
 // SendFailed 失败
 func (p *ProxyCommentListController) SendFailed(msg string) {
 	p.JSON(http.StatusOK, CtListResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},
@@ -67,7 +67,7 @@ func (p *ProxyCommentListController) SendFailed(msg string) {
 // SendSucceed 成功
 func (p *ProxyCommentListController) SendSucceed(commentList *comment.CList) {
 	p.JSON(http.StatusOK, CtListResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 			StatusMsg:  "",
 		},

@@ -1,7 +1,7 @@
 package video
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/video"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -9,7 +9,7 @@ import (
 )
 
 type ListResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*video.PublishList
 }
 
@@ -49,7 +49,7 @@ func (p *ProxyQueryVideoList) DoQueryVideoListByUid(uid int64) error {
 // QueryVideoListOk 获取成功
 func (p *ProxyQueryVideoList) QueryVideoListOk(list *video.PublishList) {
 	p.ctx.JSON(http.StatusOK, ListResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 		},
 		PublishList: list,
@@ -59,7 +59,7 @@ func (p *ProxyQueryVideoList) QueryVideoListOk(list *video.PublishList) {
 // QueryVideoListFailed 获取失败
 func (p *ProxyQueryVideoList) QueryVideoListFailed(msg string) {
 	p.ctx.JSON(http.StatusOK, ListResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},

@@ -1,14 +1,14 @@
 package login
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/login"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type UserLoginResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*login.LoginResponse
 }
 
@@ -18,7 +18,7 @@ func UserLoginController(c *gin.Context) {
 	password, ok := raw.(string)
 	if !ok {
 		c.JSON(http.StatusOK, UserLoginResponse{
-			CommonResponse: models.CommonResponse{
+			CommonResponse: common.CommonResponse{
 				StatusCode: 1,
 				StatusMsg:  "密码解析错误",
 			},
@@ -30,7 +30,7 @@ func UserLoginController(c *gin.Context) {
 	//用户不存在返回对应的错误
 	if err != nil {
 		c.JSON(http.StatusOK, UserLoginResponse{
-			CommonResponse: models.CommonResponse{StatusCode: 1, StatusMsg: err.Error()},
+			CommonResponse: common.CommonResponse{StatusCode: 1, StatusMsg: err.Error()},
 		})
 		return
 	}
@@ -38,7 +38,7 @@ func UserLoginController(c *gin.Context) {
 	//log.Println("userLoginResponse.UserId:", userLoginResponse.UserId)
 	//用户存在，返回相应的id和token
 	c.JSON(http.StatusOK, UserLoginResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 			StatusMsg:  "登陆成功",
 		},

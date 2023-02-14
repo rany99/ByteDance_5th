@@ -2,8 +2,8 @@ package util
 
 import (
 	"ByteDance_5th/cache"
-	"ByteDance_5th/config"
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"errors"
 	"fmt"
 	"log"
@@ -12,12 +12,12 @@ import (
 
 // GetVideoUrl 返回url
 func GetVideoUrl(fileName string) string {
-	return fmt.Sprintf("http://%s:%d/static/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
+	return fmt.Sprintf("http://%s:%d/static/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
 }
 
 // GetImageUrl 返回url
 func GetImageUrl(fileName string) string {
-	return fmt.Sprintf("http://%s:%d/static/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
+	return fmt.Sprintf("http://%s:%d/static/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
 }
 
 // NewUnicFileName 生成唯一文件名

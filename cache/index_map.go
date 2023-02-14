@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"ByteDance_5th/config"
+	"ByteDance_5th/pkg/common"
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
@@ -20,9 +20,9 @@ var proxyIndexOperation ProxyIndexMap
 func init() {
 	rdb = redis.NewClient(
 		&redis.Options{
-			Addr:     fmt.Sprintf("%s:%d", config.Conf.RD.IP, config.Conf.RD.Port),
+			Addr:     fmt.Sprintf("%s:%d", common.Conf.RD.IP, common.Conf.RD.Port),
 			Password: "",
-			DB:       config.Conf.RD.Database,
+			DB:       common.Conf.RD.Database,
 		})
 }
 

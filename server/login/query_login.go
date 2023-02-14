@@ -1,8 +1,8 @@
 package login
 
 import (
-	"ByteDance_5th/middle"
 	"ByteDance_5th/models"
+	"ByteDance_5th/util"
 	"errors"
 	"log"
 )
@@ -79,7 +79,7 @@ func (q *QueryUserLoginFlow) prepareData() error {
 		token string
 		err   error
 	)
-	if token, err = middle.GenerateToken(user); err != nil {
+	if token, err = util.GenerateToken(user); err != nil {
 		log.Println("获取数据-B", err)
 		return err
 	}

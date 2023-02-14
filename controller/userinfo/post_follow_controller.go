@@ -1,7 +1,7 @@
 package userinfo
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -18,14 +18,14 @@ type ProxyPostFollow struct {
 }
 
 func PostFollowController(ctx *gin.Context) {
-	NewProxyPostFollow(ctx).Do()
+	NewProxyPostFollow(ctx).Operation()
 }
 
 func NewProxyPostFollow(context *gin.Context) *ProxyPostFollow {
 	return &ProxyPostFollow{Context: context}
 }
 
-func (p *ProxyPostFollow) Do() {
+func (p *ProxyPostFollow) Operation() {
 	if err := p.ParseJSON(); err != nil {
 		p.SendFailed(err.Error())
 		return
@@ -63,14 +63,14 @@ func (p *ProxyPostFollow) ParseJSON() error {
 }
 
 func (p *ProxyPostFollow) SendFailed(msg string) {
-	p.JSON(http.StatusOK, models.CommonResponse{
+	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 1,
 		StatusMsg:  msg,
 	})
 }
 
 func (p *ProxyPostFollow) SendSuccessfully() {
-	p.JSON(http.StatusOK, models.CommonResponse{
+	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 0,
 		StatusMsg:  "",
 	})

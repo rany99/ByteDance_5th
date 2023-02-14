@@ -1,8 +1,8 @@
 package login
 
 import (
-	"ByteDance_5th/middle"
 	"ByteDance_5th/models"
+	"ByteDance_5th/util"
 	"errors"
 )
 
@@ -77,7 +77,7 @@ func (q *PostUserLoginFlow) updateData() error {
 
 	//颁发token
 	var token string
-	if token, err = middle.GenerateToken(userLogin); err != nil {
+	if token, err = util.GenerateToken(userLogin); err != nil {
 		return err
 	}
 	q.token = token

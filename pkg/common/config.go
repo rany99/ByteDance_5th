@@ -1,4 +1,4 @@
-package config
+package common
 
 import (
 	"fmt"
@@ -44,7 +44,7 @@ var Conf Config
 
 // 初始化
 func init() {
-	if _, err := toml.DecodeFile("D:\\go_project\\ByteDance_5th\\config\\config.toml", &Conf); err != nil {
+	if _, err := toml.DecodeFile("D:\\go_project\\ByteDance_5th\\pkg\\common\\config.toml", &Conf); err != nil {
 		panic(err)
 	}
 	//去除左右空格

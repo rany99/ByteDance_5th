@@ -1,7 +1,7 @@
 package video
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/video"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -10,8 +10,8 @@ import (
 	"strconv"
 )
 
-func PostFavorHandler(ctx *gin.Context) {
-	NewPostFavorHandler(ctx).Do()
+func PostFavorController(ctx *gin.Context) {
+	NewPostFavorHandler(ctx).Operation()
 }
 
 func NewPostFavorHandler(ctx *gin.Context) *ProxyPostFavorHandler {
@@ -25,32 +25,32 @@ type ProxyPostFavorHandler struct {
 	actionType int64
 }
 
-func (p *ProxyPostFavorHandler) Do() {
+func (p *ProxyPostFavorHandler) Operation() {
 	//解码
 	if err := p.ParseNum(); err != nil {
-		p.SendErr(err.Error())
+		p.SendFailed(err.Error())
 		return
 	}
 	//sever层执行点赞操作
 	if err := video.PostFavor(p.userId, p.videoId, p.actionType); err != nil {
-		p.SendErr(err.Error())
+		p.SendFailed(err.Error())
 		return
 	}
 	//点赞成功
-	p.SendOk()
+	p.SendSucceed()
 }
 
 // ParseNum 解析UserId
 func (p *ProxyPostFavorHandler) ParseNum() error {
-	RawUserid, _ := p.Get("user_id")
-	userId, ok := RawUserid.(int64)
-	if !ok {
+	RawUserid := p.Query("user_id")
+	userId, err := strconv.ParseInt(RawUserid, 10, 64)
+	if err != nil {
 		return errors.New("userid解析错误")
 	}
-	log.Println("userId解析成功：", userId)
+	//log.Println("userId解析成功：", userId)
 	RawVideoId := p.Query("video_id")
 	videoId, err := strconv.ParseInt(RawVideoId, 10, 64)
-	log.Println("videoId解析成功：", videoId)
+	//log.Println("videoId解析成功：", videoId)
 	if err != nil {
 		return err
 	}
@@ -67,19 +67,19 @@ func (p *ProxyPostFavorHandler) ParseNum() error {
 	return nil
 }
 
-// SendErr 生成错误返回
-func (p *ProxyPostFavorHandler) SendErr(msg string) {
+// SendFailed 生成错误返回
+func (p *ProxyPostFavorHandler) SendFailed(msg string) {
 	log.Println("SendErr")
-	p.JSON(http.StatusOK, models.CommonResponse{
+	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 1,
 		StatusMsg:  msg,
 	})
 }
 
-// SendOk 生成正确返回
-func (p *ProxyPostFavorHandler) SendOk() {
+// SendSucceed 生成正确返回
+func (p *ProxyPostFavorHandler) SendSucceed() {
 	log.Println("SendOk")
-	p.JSON(http.StatusOK, models.CommonResponse{
+	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 0,
 		StatusMsg:  "",
 	})

@@ -1,7 +1,7 @@
 package comment
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/comment"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ import (
 //解析JSON信息，并将信息送入server层
 
 type PostCommentResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*comment.CResponse
 }
 
@@ -105,7 +105,7 @@ func (p *ProxyPostCommentController) ParseJson() error {
 // SendFailed 失败
 func (p *ProxyPostCommentController) SendFailed(msg string) {
 	p.JSON(http.StatusOK, PostCommentResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},
@@ -116,7 +116,7 @@ func (p *ProxyPostCommentController) SendFailed(msg string) {
 // SendSucceed 成功
 func (p *ProxyPostCommentController) SendSucceed(comment *comment.CResponse) {
 	p.JSON(http.StatusOK, PostCommentResponse{
-		CommonResponse: models.CommonResponse{StatusCode: 0},
+		CommonResponse: common.CommonResponse{StatusCode: 0},
 		CResponse:      comment,
 	})
 	log.Println("SendSucceed")

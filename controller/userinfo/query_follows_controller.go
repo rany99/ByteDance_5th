@@ -1,7 +1,7 @@
 package userinfo
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 )
 
 type FollowsResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*userinfo.Follows
 }
 
@@ -20,7 +20,7 @@ type ProxyQueryFollows struct {
 }
 
 func QueryFollowsController(ctx *gin.Context) {
-	NewProxyQueryFollows(ctx).Do()
+	NewProxyQueryFollows(ctx).Operation()
 }
 
 func NewProxyQueryFollows(ctx *gin.Context) *ProxyQueryFollows {
@@ -29,7 +29,7 @@ func NewProxyQueryFollows(ctx *gin.Context) *ProxyQueryFollows {
 	}
 }
 
-func (p *ProxyQueryFollows) Do() {
+func (p *ProxyQueryFollows) Operation() {
 	if err := p.ParseJSON(); err != nil {
 		p.SendFailed(err.Error())
 		return
@@ -42,7 +42,7 @@ func (p *ProxyQueryFollows) Do() {
 }
 
 func (p *ProxyQueryFollows) SendFailed(msg string) {
-	p.JSON(http.StatusOK, models.CommonResponse{
+	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 1,
 		StatusMsg:  msg,
 	})
@@ -50,7 +50,7 @@ func (p *ProxyQueryFollows) SendFailed(msg string) {
 
 func (p *ProxyQueryFollows) SendSucceed(msg string) {
 	p.JSON(http.StatusOK, FollowsResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 			StatusMsg:  msg,
 		},

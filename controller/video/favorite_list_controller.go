@@ -1,7 +1,7 @@
 package video
 
 import (
-	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/server/video"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 )
 
 type FavoriteListResponse struct {
-	models.CommonResponse
+	common.CommonResponse
 	*video.FavoriteList
 }
 
@@ -19,7 +19,7 @@ type ProxyFavoriteListController struct {
 }
 
 func QueryFavoriteListController(ctx *gin.Context) {
-	NewProxyFavoriteListController(ctx).Do()
+	NewProxyFavoriteListController(ctx).Operation()
 }
 
 func NewProxyFavoriteListController(ctx *gin.Context) *ProxyFavoriteListController {
@@ -28,7 +28,7 @@ func NewProxyFavoriteListController(ctx *gin.Context) *ProxyFavoriteListControll
 	}
 }
 
-func (p *ProxyFavoriteListController) Do() {
+func (p *ProxyFavoriteListController) Operation() {
 	if err := p.ParseJson(); err != nil {
 		p.SendFailed(err.Error())
 	}
@@ -51,7 +51,7 @@ func (p *ProxyFavoriteListController) ParseJson() error {
 
 func (p *ProxyFavoriteListController) SendFailed(msg string) {
 	p.JSON(http.StatusOK, FavoriteListResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},
@@ -61,7 +61,7 @@ func (p *ProxyFavoriteListController) SendFailed(msg string) {
 
 func (p *ProxyFavoriteListController) SendSucceed(favoriteList *video.FavoriteList) {
 	p.JSON(http.StatusOK, FavoriteListResponse{
-		CommonResponse: models.CommonResponse{
+		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 		},
 		FavoriteList: favoriteList,
