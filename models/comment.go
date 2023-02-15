@@ -4,6 +4,7 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"errors"
 	"gorm.io/gorm"
+	"sync"
 	"time"
 )
 
@@ -20,10 +21,16 @@ type Comment struct {
 type CommentDAO struct {
 }
 
-var commentDao CommentDAO
+var (
+	commentDao  *CommentDAO
+	commentOnce sync.Once
+)
 
 func NewCommentDao() *CommentDAO {
-	return &commentDao
+	commentOnce.Do(func() {
+		commentDao = new(CommentDAO)
+	})
+	return commentDao
 }
 
 // CreateAndCntAddOne 创建评论并将视频评论数量加一

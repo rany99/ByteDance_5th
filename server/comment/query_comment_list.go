@@ -29,22 +29,22 @@ func NewQueryCommentListFlow(uid int64, vid int64) *QueryCommentListFlow {
 }
 
 func (q *QueryCommentListFlow) Operation() (*CList, error) {
-	if err := q.checkJson(); err != nil {
+	if err := q.CheckJson(); err != nil {
 		//log.Println("QueryCommentListFlow:checkJSON失败")
 		return nil, err
 	}
-	if err := q.getData(); err != nil {
+	if err := q.GetData(); err != nil {
 		//log.Println("QueryCommentListFlow:getData失败")
 		return nil, err
 	}
-	if err := q.packData(); err != nil {
+	if err := q.PackData(); err != nil {
 		//log.Println("QueryCommentListFlow:PackData失败")
 		return nil, err
 	}
 	return q.commentList, nil
 }
 
-func (q *QueryCommentListFlow) checkJson() error {
+func (q *QueryCommentListFlow) CheckJson() error {
 	//判断用户是否存在
 	if err := models.NewUserInfoDAO().IsUserInfoExist(q.uid); err != nil {
 		return err
@@ -56,7 +56,7 @@ func (q *QueryCommentListFlow) checkJson() error {
 	return nil
 }
 
-func (q *QueryCommentListFlow) getData() error {
+func (q *QueryCommentListFlow) GetData() error {
 	if err := models.NewCommentDao().QueryCommentListByVideoId(q.vid, &q.comments); err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (q *QueryCommentListFlow) getData() error {
 	return nil
 }
 
-func (q *QueryCommentListFlow) packData() error {
+func (q *QueryCommentListFlow) PackData() error {
 	q.commentList = &CList{Comments: q.comments}
 	return nil
 }
