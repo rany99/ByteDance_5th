@@ -44,15 +44,14 @@ func (q *QueryFansFlow) CheckJson() error {
 }
 
 func (q *QueryFansFlow) GetData() error {
-	var userList []*models.UserInfo
-	if err := models.NewUserInfoDAO().GetFansById(q.uid, &userList); err != nil {
+	//var userList []*models.UserInfo
+	if err := models.NewUserInfoDAO().GetFansById(q.uid, &q.userList); err != nil {
 		return err
 	}
 	//log.Println("server层：列表长度", len(userList))
-	for i := 0; i < len(userList); i++ {
-		userList[i].IsFollow = cache.NewProxyIndexMap().GetAFollowB(q.uid, userList[i].Id)
+	for i := 0; i < len(q.userList); i++ {
+		q.userList[i].IsFollow = cache.NewProxyIndexMap().GetAFollowB(q.uid, q.userList[i].Id)
 	}
-	q.userList = userList
 	return nil
 }
 

@@ -52,6 +52,6 @@ func InitRouters() *gin.Engine {
 	//粉丝列表
 	BG.GET("/relation/follower/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFansController)
 	//朋友列表
-	BG.GET("/relation/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFansController)
+	BG.GET("/relation/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFriendsController)
 	return r
 }
