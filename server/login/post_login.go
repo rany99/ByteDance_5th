@@ -2,6 +2,7 @@ package login
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/util"
 	"errors"
 )
@@ -44,13 +45,13 @@ func (q *PostUserLoginFlow) Do() (*LoginResponse, error) {
 
 func (q *PostUserLoginFlow) checkNum() error {
 	if q.username == "" {
-		return errors.New("用户名为空")
+		return errors.New(errortype.UserNameEmptyErr)
 	}
 	if len(q.username) > MaxNameLen {
-		return errors.New("用户名长度超出限制")
+		return errors.New(errortype.UserNameOverMaxLenErr)
 	}
 	if q.password == "" {
-		return errors.New("密码为空")
+		return errors.New(errortype.PasswordEmptyErr)
 	}
 	return nil
 }
@@ -65,10 +66,9 @@ func (q *PostUserLoginFlow) updateData() error {
 	//判断用户名是否已经存在
 	userLoginDAO := models.NewLoginDao()
 	if userLoginDAO.UserAlreadyExist(q.username) {
-		return errors.New("用户名已存在")
+		return errors.New(errortype.UserNameExistErr)
 	}
 
-	//更新操作，由于userLogin属于userInfo，故更新userInfo即可，且由于传入的是指针，所以插入的数据内容也是清楚的
 	userInfoDAO := models.NewUserInfoDAO()
 	err := userInfoDAO.AddUserInfo(&userinfo)
 	if err != nil {

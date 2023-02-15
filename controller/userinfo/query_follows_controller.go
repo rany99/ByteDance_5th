@@ -2,6 +2,7 @@ package userinfo
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -62,7 +63,7 @@ func (p *ProxyQueryFollows) ParseJSON() error {
 	rawUid, _ := p.Get("user_id")
 	uid, ok := rawUid.(int64)
 	if !ok {
-		return errors.New("uid解析错误")
+		return errors.New(errortype.ParseUserIdErr)
 	}
 	p.uid = uid
 	return nil

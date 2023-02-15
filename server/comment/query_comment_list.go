@@ -2,8 +2,8 @@ package comment
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/errortype"
 	"errors"
-	"log"
 )
 
 type CList struct {
@@ -18,7 +18,7 @@ type QueryCommentListFlow struct {
 }
 
 func QueryCommentList(uid, vid int64) (*CList, error) {
-	return NewQueryCommentListFlow(uid, vid).Do()
+	return NewQueryCommentListFlow(uid, vid).Operation()
 }
 
 func NewQueryCommentListFlow(uid int64, vid int64) *QueryCommentListFlow {
@@ -28,17 +28,18 @@ func NewQueryCommentListFlow(uid int64, vid int64) *QueryCommentListFlow {
 	}
 }
 
-func (q *QueryCommentListFlow) Do() (*CList, error) {
+func (q *QueryCommentListFlow) Operation() (*CList, error) {
 	if err := q.checkJson(); err != nil {
-		log.Println("QueryCommentListFlow:checkJSON失败")
+		//log.Println("QueryCommentListFlow:checkJSON失败")
 		return nil, err
 	}
 	if err := q.getData(); err != nil {
-		log.Println("QueryCommentListFlow:getData失败")
+		//log.Println("QueryCommentListFlow:getData失败")
 		return nil, err
 	}
 	if err := q.packData(); err != nil {
-		log.Println("QueryCommentListFlow:PackData失败")
+		//log.Println("QueryCommentListFlow:PackData失败")
+		return nil, err
 	}
 	return q.commentList, nil
 }
@@ -50,7 +51,7 @@ func (q *QueryCommentListFlow) checkJson() error {
 	}
 	//判断视频是否存在
 	if !models.NewVideoDao().VideoAlreadyExist(q.vid) {
-		return errors.New("视频不存在")
+		return errors.New(errortype.VideoNoExistErr)
 	}
 	return nil
 }
@@ -59,8 +60,8 @@ func (q *QueryCommentListFlow) getData() error {
 	if err := models.NewCommentDao().QueryCommentListByVideoId(q.vid, &q.comments); err != nil {
 		return err
 	}
-	if err := FillCommentListFields(&q.comments); err != nil {
-		return errors.New("还没有人发现这里，赶紧抢首评吧")
+	if err := FillCommentList(&q.comments); err != nil {
+		return errors.New(errortype.VideoHasNoCommentErr)
 	}
 	return nil
 }
@@ -70,13 +71,13 @@ func (q *QueryCommentListFlow) packData() error {
 	return nil
 }
 
-func FillCommentListFields(comments *[]*models.Comment) error {
+func FillCommentList(comments *[]*models.Comment) error {
 	if comments == nil {
-		return errors.New("FillCommentListFields：传入comments指针为空")
+		return errors.New("FillCommentListFields" + errortype.PointerIsNilErr)
 	}
 	commentsLen := len(*comments)
 	if commentsLen == 0 {
-		return errors.New("FillCommentListFields：传入comments无内容")
+		return errors.New(errortype.VideoListEmptyErr)
 	}
 	userInfoDAO := models.NewUserInfoDAO()
 	for _, c := range *comments {

@@ -2,11 +2,11 @@ package video
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/video"
 	"ByteDance_5th/util"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,7 +34,7 @@ func FeedListController(ctx *gin.Context) {
 	}
 }
 
-// ProxyFeedList f防火层
+// ProxyFeedList 代理层
 type ProxyFeedList struct {
 	*gin.Context
 }
@@ -64,7 +64,7 @@ func (p *ProxyFeedList) DoWithoutToken() error {
 func (p *ProxyFeedList) DoWithToken(token string) error {
 	if claim, ok := util.DecodeToken(token); ok {
 		if time.Now().Unix() > claim.ExpiresAt {
-			return errors.New("token已经过期")
+			return errors.New(errortype.TokenOutDateErr)
 		}
 		timeStamp := p.Query("latest_time")
 		var latestTime time.Time
@@ -79,14 +79,15 @@ func (p *ProxyFeedList) DoWithToken(token string) error {
 		p.GetFeedListSuccessfully(list)
 		return nil
 	}
-	return errors.New("token解析错误")
+	return errors.New(errortype.ParseTokenErr)
 }
 
 // GetFeedListSuccessfully 获取视频流成功
 func (p *ProxyFeedList) GetFeedListSuccessfully(feedList *video.FeedList) {
-	if feedList == nil {
-		log.Println("GetFeedListSuccessfully：视频流指针为空")
-	}
+	//if feedList == nil {
+	//	log.Println("GetFeedListSuccessfully")
+	//	return
+	//}
 	p.JSON(http.StatusOK, FeedResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 0,

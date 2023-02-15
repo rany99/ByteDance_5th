@@ -2,6 +2,7 @@ package login
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/login"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -20,7 +21,7 @@ func RegisterController(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, RegisterResponse{
 			CommonResponse: common.CommonResponse{
 				StatusCode: 1,
-				StatusMsg:  "密码解析错误",
+				StatusMsg:  errortype.ParsePasswordErr,
 			},
 		})
 		return

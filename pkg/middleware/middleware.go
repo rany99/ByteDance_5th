@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/util"
 	"crypto/sha1"
 	"encoding/hex"
@@ -22,7 +23,7 @@ func Permission() gin.HandlerFunc {
 		if tokenStr == "" {
 			context.JSON(http.StatusOK, common.CommonResponse{
 				StatusCode: 401,
-				StatusMsg:  "用户未认证",
+				StatusMsg:  errortype.UserNoAuthenticatedErr,
 			})
 			context.Abort()
 			return
@@ -32,7 +33,7 @@ func Permission() gin.HandlerFunc {
 		if !ok {
 			context.JSON(http.StatusOK, common.CommonResponse{
 				StatusCode: 403,
-				StatusMsg:  "token解析错误",
+				StatusMsg:  errortype.ParseTokenErr,
 			})
 			context.Abort()
 			return
@@ -40,7 +41,7 @@ func Permission() gin.HandlerFunc {
 		if time.Now().Unix() > tokenDecoded.ExpiresAt {
 			context.JSON(http.StatusOK, common.CommonResponse{
 				StatusCode: 402,
-				StatusMsg:  "token已过期",
+				StatusMsg:  errortype.TokenOutDateErr,
 			})
 			context.Abort()
 			return
@@ -69,13 +70,13 @@ func NoAuthToGetUserId() gin.HandlerFunc {
 		}
 		//用户未认证
 		if rawId == "" {
-			context.JSON(http.StatusOK, common.CommonResponse{StatusCode: 401, StatusMsg: "用户不存在"})
+			context.JSON(http.StatusOK, common.CommonResponse{StatusCode: 401, StatusMsg: errortype.UserNoExistErr})
 			context.Abort() //阻止执行
 			return
 		}
 		userid, err := strconv.ParseInt(rawId, 10, 64)
 		if err != nil {
-			context.JSON(http.StatusOK, common.CommonResponse{StatusCode: 401, StatusMsg: "用户不存在"})
+			context.JSON(http.StatusOK, common.CommonResponse{StatusCode: 401, StatusMsg: errortype.UserNoExistErr})
 			context.Abort()
 		}
 		context.Set("user_id", userid)

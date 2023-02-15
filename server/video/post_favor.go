@@ -3,6 +3,7 @@ package video
 import (
 	"ByteDance_5th/cache"
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/errortype"
 	"errors"
 )
 
@@ -56,23 +57,23 @@ func (p *PostFavorFlow) IsActionTypeLegal() error {
 	if p.actionType == 1 || p.actionType == 2 {
 		return nil
 	}
-	return errors.New("只可进行点赞1或者取消点赞操作")
+	return errors.New(errortype.PostFavorActionTypeErr)
 }
 
 // AddOne 执行点赞操作
 func (p *PostFavorFlow) AddOne() error {
 	if err := models.NewVideoDao().FavoriteCountAddOneByVideoId(p.uid, p.vid); err != nil {
-		return errors.New("您已经点过赞了，休息一下吧")
+		return errors.New(errortype.AlreadyPostFavorErr)
 	}
 	cache.NewProxyIndexMap().SetVideoFavor(p.uid, p.vid, true)
 	return nil
 }
 
-// SubOne 执行取消点早操作
+// SubOne 执行取消点赞操作
 func (p *PostFavorFlow) SubOne() error {
 	if err := models.NewVideoDao().FavoriteCountSubOneByVideoId(p.uid, p.vid); err != nil {
 		if err != nil {
-			errors.New("点赞数目为0")
+			errors.New(errortype.FavorCountZeroErr)
 		}
 	}
 	cache.NewProxyIndexMap().SetVideoFavor(p.uid, p.vid, false)

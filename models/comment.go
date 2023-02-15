@@ -1,9 +1,9 @@
 package models
 
 import (
+	"ByteDance_5th/pkg/errortype"
 	"errors"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -28,13 +28,13 @@ func NewCommentDao() *CommentDAO {
 
 // CreateAndCntAddOne 创建评论并将视频评论数量加一
 func (c *CommentDAO) CreateAndCntAddOne(comment *Comment) error {
-	log.Println("CreateAndCntAddOne")
+	//log.Println("CreateAndCntAddOne")
 	if comment == nil {
-		return errors.New("传入Comment指针为空")
+		return errors.New("CreateAndCntAddOne:" + errortype.PointerIsNilErr)
 	}
 	return DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(comment).Error; err != nil {
-			log.Println("CreateAndCntAddOne：评论未能入库")
+			//log.Println("CreateAndCntAddOne：评论未能入库")
 			return err
 		}
 		if err := tx.Exec("UPDATE videos v SET v.comment_count = v.comment_count+1 WHERE v.id=?", comment.VideoId).Error; err != nil {
@@ -63,7 +63,7 @@ func (c *CommentDAO) DeleteAndCntSubOne(commentId, videoId int64) error {
 // QueryCommentById 通过评论ID查询评论
 func (c *CommentDAO) QueryCommentById(id int64, comment *Comment) error {
 	if comment == nil {
-		return errors.New("传入Comment指针为空")
+		return errors.New("QueryCommentById" + errortype.PointerIsNilErr)
 	}
 	return DB.Where("id = ?", id).First(comment).Error
 }
@@ -71,7 +71,7 @@ func (c *CommentDAO) QueryCommentById(id int64, comment *Comment) error {
 // QueryCommentListByVideoId 通过视频ID查询评论
 func (c *CommentDAO) QueryCommentListByVideoId(videoId int64, comments *[]*Comment) error {
 	if comments == nil {
-		return errors.New("传入Comment指针为空")
+		return errors.New("QueryCommentListByVideoId" + errortype.PointerIsNilErr)
 	}
 	if err := DB.Model(&Comment{}).Where("video_id = ?", videoId).Find(comments).Error; err != nil {
 		return err

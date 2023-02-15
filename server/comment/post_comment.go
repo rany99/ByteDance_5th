@@ -2,8 +2,8 @@ package comment
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/errortype"
 	"errors"
-	"log"
 )
 
 type CResponse struct {
@@ -36,12 +36,12 @@ func (p *PostCommentFlow) Do() (*CResponse, error) {
 	if err := p.GetData(); err != nil {
 		return nil, err
 	}
-	log.Println("Do GetData:", p.comment.Content)
+	//log.Println("Do GetData:", p.comment.Content)
 	if err := p.PackData(); err != nil {
 		return nil, err
 	}
-	log.Println("Do PackData:", p.comment.Content)
-	log.Println(p.CResponse.CRComment.Content)
+	//log.Println("Do PackData:", p.comment.Content)
+	//log.Println(p.CResponse.CRComment.Content)
 	return p.CResponse, nil
 }
 
@@ -70,7 +70,7 @@ func (p *PostCommentFlow) CheckUid() error {
 // CheckVid 检查视频是否窜在
 func (p *PostCommentFlow) CheckVid() error {
 	if ok := models.NewVideoDao().VideoAlreadyExist(p.vid); !ok {
-		return errors.New("当前videoId的视频不存在")
+		return errors.New(errortype.VideoNoExistErr)
 	}
 	return nil
 }
@@ -80,7 +80,7 @@ func (p *PostCommentFlow) CheckActionType() error {
 	if p.actionType == 1 || p.actionType == 2 {
 		return nil
 	}
-	return errors.New("只能进行评论1或者删除2操作")
+	return errors.New(errortype.PostCommentActionTypeErr)
 }
 
 // GetData 获取数据
@@ -92,9 +92,9 @@ func (p *PostCommentFlow) GetData() error {
 	case 2: //删除
 		p.comment, err = p.DeleteComment()
 	default:
-		return errors.New("只能进行评论1或者删除2操作")
+		return errors.New(errortype.PostCommentActionTypeErr)
 	}
-	log.Println("GetData:", p.comment.Content)
+	//log.Println("GetData:", p.comment.Content)
 	return err
 }
 
@@ -105,7 +105,7 @@ func (p *PostCommentFlow) CreateComment() (*models.Comment, error) {
 		VideoId:    p.vid,
 		Content:    p.commentText,
 	}
-	log.Println("CreateComment")
+	//log.Println("CreateComment")
 	if err := models.NewCommentDao().CreateAndCntAddOne(&comment); err != nil {
 		return nil, err
 	}
@@ -131,14 +131,14 @@ func (p *PostCommentFlow) PackData() error {
 	var userInfo models.UserInfo
 	_ = models.NewUserInfoDAO().QueryUserInfoById(p.comment.UserInfoId, &userInfo)
 	p.comment.User = userInfo
-	_ = FillCommentFields(p.comment)
+	_ = FillComment(p.comment)
 	p.CResponse = &CResponse{CRComment: p.comment}
 	return nil
 }
 
-func FillCommentFields(comment *models.Comment) error {
+func FillComment(comment *models.Comment) error {
 	if comment == nil {
-		return errors.New("FillCommentFields:传入Comment指针为空")
+		return errors.New("FillCommentFields" + errortype.PointerIsNilErr)
 	}
 	comment.CreateDate = comment.CreatedAt.Format("1-2")
 	return nil

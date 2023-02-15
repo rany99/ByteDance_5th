@@ -3,11 +3,12 @@
 package util
 
 import (
+	"ByteDance_5th/pkg/errortype"
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/disintegration/imaging"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
-	"log"
 	"os"
 )
 
@@ -25,21 +26,21 @@ func SnapShotFromVideo(videoPath, snapShotPath string, frameNum int) (err error)
 		WithOutput(buf, os.Stdout).
 		Run()
 	if err != nil {
-		log.Fatal("生成缩略图失败：", err)
-		return err
+		//log.Fatal(errortype.SnapShotErr, err)
+		return errors.New(errortype.SnapShotErr)
 	}
 
 	img, err := imaging.Decode(buf)
 	if err != nil {
-		log.Fatal("生成缩略图失败：", err)
-		return err
+		//log.Fatal(errortype.ImgDecodeErr, err)
+		return errors.New(errortype.ImgDecodeErr)
 	}
 
 	err = imaging.Save(img, snapShotPath)
 	if err != nil {
-		log.Fatal("生成缩略图失败：", err)
-		return err
+		//log.Fatal(errortype.SaveSnapErr, err)
+		return errors.New(errortype.SaveSnapErr)
 	}
-	log.Println("截图成功")
+
 	return nil
 }

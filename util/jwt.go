@@ -3,7 +3,6 @@ package util
 import (
 	"ByteDance_5th/models"
 	"github.com/dgrijalva/jwt-go"
-	"log"
 	"time"
 )
 
@@ -30,7 +29,7 @@ func GenerateToken(user models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString(JwtKey)
 	if err != nil {
-		log.Println("token生成失败", tokenStr)
+		//log.Println("token生成失败", tokenStr)
 		return "", err
 	}
 	return tokenStr, nil

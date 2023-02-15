@@ -1,6 +1,7 @@
 package models
 
 import (
+	"ByteDance_5th/pkg/errortype"
 	"errors"
 	"log"
 	"sync"
@@ -26,15 +27,15 @@ var (
 // UserLogin 登陆
 func (u *LoginDao) UserLogin(username, password string, login *User) error {
 	if login == nil {
-		return errors.New("输入User结构体为空")
+		return errors.New("UserLogin:" + errortype.PointerIsNilErr)
 	}
 	DB.Where("username = ?", username).First(login)
 	if login.Id == 0 {
-		return errors.New("账户输入错误或用户不存在")
+		return errors.New(errortype.UserWrongOrNoExistErr)
 	}
 	DB.Where("username = ? AND password = ?", username, password).First(login)
 	if login.Id == 0 {
-		return errors.New("密码输入错误")
+		return errors.New(errortype.PasswordWrongErr)
 	}
 	return nil
 }

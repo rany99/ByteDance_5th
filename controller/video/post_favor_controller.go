@@ -2,19 +2,19 @@ package video
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/video"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 func PostFavorController(ctx *gin.Context) {
-	NewPostFavorHandler(ctx).Operation()
+	NewPostFavorController(ctx).Operation()
 }
 
-func NewPostFavorHandler(ctx *gin.Context) *ProxyPostFavorHandler {
+func NewPostFavorController(ctx *gin.Context) *ProxyPostFavorHandler {
 	return &ProxyPostFavorHandler{Context: ctx}
 }
 
@@ -42,34 +42,43 @@ func (p *ProxyPostFavorHandler) Operation() {
 
 // ParseNum 解析UserId
 func (p *ProxyPostFavorHandler) ParseNum() error {
-	RawUserid := p.Query("user_id")
-	userId, err := strconv.ParseInt(RawUserid, 10, 64)
-	if err != nil {
-		return errors.New("userid解析错误")
+	//解析user_id
+	RawUserId, _ := p.Get("user_id")
+	userId, ok := RawUserId.(int64)
+	if ok != true {
+		return errors.New(errortype.ParseUserIdErr)
 	}
 	//log.Println("userId解析成功：", userId)
+
+	//解析video_id
 	RawVideoId := p.Query("video_id")
 	videoId, err := strconv.ParseInt(RawVideoId, 10, 64)
-	//log.Println("videoId解析成功：", videoId)
 	if err != nil {
-		return err
+		return errors.New(errortype.ParseVideoIdErr)
 	}
+	//log.Println("videoId解析成功：", videoId)
+
+	//解析action_type
 	RawActionType := p.Query("action_type")
 	actionType, err := strconv.ParseInt(RawActionType, 10, 64)
 	if err != nil {
-		return err
+		return errors.New(errortype.ParseActionTypeErr)
 	}
 	//log.Println("actionType解析成功：", actionType)
+
+	//校验actionType
 	if actionType != 1 && actionType != 2 {
-		return errors.New("actionType仅限1点赞2取消")
+		return errors.New(errortype.PostFavorActionTypeErr)
 	}
+
+	//填入代理层
 	p.videoId, p.actionType, p.userId = videoId, actionType, userId
 	return nil
 }
 
 // SendFailed 生成错误返回
 func (p *ProxyPostFavorHandler) SendFailed(msg string) {
-	log.Println("SendErr")
+	//log.Println("SendErr")
 	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 1,
 		StatusMsg:  msg,
@@ -78,7 +87,7 @@ func (p *ProxyPostFavorHandler) SendFailed(msg string) {
 
 // SendSucceed 生成正确返回
 func (p *ProxyPostFavorHandler) SendSucceed() {
-	log.Println("SendOk")
+	//log.Println("SendOk")
 	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 0,
 		StatusMsg:  "",

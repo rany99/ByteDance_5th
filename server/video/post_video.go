@@ -13,8 +13,7 @@ type PostVideoFlow struct {
 	Video     *models.Video
 }
 
-func (p *PostVideoFlow) Do() error {
-
+func (p *PostVideoFlow) Opeartion() error {
 	p.GenerateUrl()
 	if err := p.publish(); err != nil {
 		return err
@@ -51,5 +50,5 @@ func NewPostVideoFlow(userId int64, videoName, coverName, title string) *PostVid
 
 // PostVideo 发布视频
 func PostVideo(userId int64, videoName, coverName, title string) error {
-	return NewPostVideoFlow(userId, videoName, coverName, title).Do()
+	return NewPostVideoFlow(userId, videoName, coverName, title).Opeartion()
 }

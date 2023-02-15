@@ -2,9 +2,9 @@ package video
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/video"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -28,26 +28,26 @@ func QueryVideoListController(ctx *gin.Context) {
 	rawId, _ := ctx.Get("user_id")
 	uid, ok := rawId.(int64)
 	if !ok {
-		log.Println("QueryVideoListController：uid解析错误")
-		p.QueryVideoListFailed("uid解析错误")
+		//log.Println(errortype.ParseUserIdErr)
+		p.SendFailed(errortype.ParseUserIdErr)
 	}
 	if err := p.DoQueryVideoListByUid(uid); err != nil {
-		p.QueryVideoListFailed(err.Error())
+		p.SendFailed(err.Error())
 	}
 }
 
-// DoQueryVideoListByUid 使用uid知行查询
+// DoQueryVideoListByUid 使用uid进行查询
 func (p *ProxyQueryVideoList) DoQueryVideoListByUid(uid int64) error {
 	videoList, err := video.QueryPublishListByUid(uid)
 	if err != nil {
 		return err
 	}
-	p.QueryVideoListOk(videoList)
+	p.SendSucceed(videoList)
 	return nil
 }
 
-// QueryVideoListOk 获取成功
-func (p *ProxyQueryVideoList) QueryVideoListOk(list *video.PublishList) {
+// SendSucceed 获取成功
+func (p *ProxyQueryVideoList) SendSucceed(list *video.PublishList) {
 	p.ctx.JSON(http.StatusOK, ListResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
@@ -56,8 +56,8 @@ func (p *ProxyQueryVideoList) QueryVideoListOk(list *video.PublishList) {
 	})
 }
 
-// QueryVideoListFailed 获取失败
-func (p *ProxyQueryVideoList) QueryVideoListFailed(msg string) {
+// SendFailed 获取失败
+func (p *ProxyQueryVideoList) SendFailed(msg string) {
 	p.ctx.JSON(http.StatusOK, ListResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 1,

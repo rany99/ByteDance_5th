@@ -2,6 +2,7 @@ package comment
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/comment"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -40,16 +41,18 @@ func (p *ProxyCommentListController) Operation() {
 
 // ParseJSON 解析JSON信息
 func (p *ProxyCommentListController) ParseJSON() error {
-	rawUid := p.Query("user_id")
-	uid, err := strconv.ParseInt(rawUid, 10, 64)
-	if err != nil {
-		return errors.New("uid解析错误")
+	rawUid, _ := p.Get("user_id")
+	uid, ok := rawUid.(int64)
+	if !ok {
+		return errors.New(errortype.ParseUserIdErr)
 	}
 	rawVid := p.Query("video_id")
 	vid, err := strconv.ParseInt(rawVid, 10, 64)
 	if err != nil {
-		return err
+		return errors.New(errortype.ParseVideoIdErr)
 	}
+
+	//填入代理层
 	p.uid, p.vid = uid, vid
 	return nil
 }
@@ -75,7 +78,7 @@ func (p *ProxyCommentListController) SendSucceed(commentList *comment.CList) {
 	})
 }
 
-// NewProxyCommentListHandler 创建防火层
+// NewProxyCommentListHandler 创建代理层
 func NewProxyCommentListHandler(ctx *gin.Context) *ProxyCommentListController {
 	return &ProxyCommentListController{
 		Context: ctx,

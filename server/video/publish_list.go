@@ -3,8 +3,8 @@ package video
 import (
 	"ByteDance_5th/cache"
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/errortype"
 	"errors"
-	"log"
 )
 
 type PublishList struct {
@@ -19,12 +19,12 @@ type QueryPublishListByUidFlow struct {
 
 // QueryPublishListByUid 通过UID返回
 func QueryPublishListByUid(userid int64) (*PublishList, error) {
-	return NewQueryUserVideoListByUid(userid).Do()
+	return NewQueryUserVideoListByUid(userid).Operation()
 }
 
-func (q *QueryPublishListByUidFlow) Do() (*PublishList, error) {
+func (q *QueryPublishListByUidFlow) Operation() (*PublishList, error) {
 	if err := q.IsUidExist(); err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errors.New(errortype.UserNoExistErr)
 	}
 	if err := q.PackData(); err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (q *QueryPublishListByUidFlow) PackData() error {
 		q.videos[i].Author = userInfo
 		q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
 	}
-	log.Println("PackData:", len(q.videos))
+	//log.Println("PackData:", len(q.videos))
 	q.videoList = &PublishList{Videos: q.videos}
 	return nil
 }

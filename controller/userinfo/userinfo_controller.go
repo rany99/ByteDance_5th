@@ -3,6 +3,7 @@ package userinfo
 import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -25,20 +26,20 @@ func InfoController(ctx *gin.Context) {
 	p := NewProxyUserInfo(ctx)
 	raw, ok := ctx.Get("user_id")
 	if !ok {
-		p.UserInfoError("userId解析错误")
+		p.SendFailed(errortype.ParseUserIdErr)
 	}
 	err := p.DoQueryUserInfoByUserId(raw)
 	if err != nil {
-		p.UserInfoError(err.Error())
+		p.SendFailed(err.Error())
 	}
 }
 
 func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId interface{}) error {
 	userId, ok := rawId.(int64)
 	if !ok {
-		return errors.New("解析userId失败")
+		return errors.New(errortype.ParseUserIdErr)
 	}
-	//由于得到userinfo不需要组装model层的数据，所以直接调用model层的接口
+
 	userinfoDAO := models.NewUserInfoDAO()
 
 	var userInfo models.UserInfo
@@ -46,17 +47,17 @@ func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId interface{}) error {
 	if err != nil {
 		return err
 	}
-	p.UserInfoOk(&userInfo)
+	p.SendSucceed(&userInfo)
 	return nil
 }
 
-func (p *ProxyUserInfo) UserInfoError(msg string) {
+func (p *ProxyUserInfo) SendFailed(msg string) {
 	p.c.JSON(http.StatusOK, UserResponse{
 		CommonResponse: common.CommonResponse{StatusCode: 1, StatusMsg: msg},
 	})
 }
 
-func (p *ProxyUserInfo) UserInfoOk(user *models.UserInfo) {
+func (p *ProxyUserInfo) SendSucceed(user *models.UserInfo) {
 	p.c.JSON(http.StatusOK, UserResponse{
 		CommonResponse: common.CommonResponse{StatusCode: 0},
 		UserInfo:       user,

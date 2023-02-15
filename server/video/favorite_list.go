@@ -2,7 +2,6 @@ package video
 
 import (
 	"ByteDance_5th/models"
-	"log"
 )
 
 type FavoriteList struct {
@@ -16,7 +15,7 @@ type QueryFavoriteListFlow struct {
 }
 
 func QueryFavoriteList(uid int64) (*FavoriteList, error) {
-	return NewQueryFavoriteListFlow(uid).Do()
+	return NewQueryFavoriteListFlow(uid).Operation()
 }
 
 func NewQueryFavoriteListFlow(uid int64) *QueryFavoriteListFlow {
@@ -25,7 +24,7 @@ func NewQueryFavoriteListFlow(uid int64) *QueryFavoriteListFlow {
 	}
 }
 
-func (q *QueryFavoriteListFlow) Do() (*FavoriteList, error) {
+func (q *QueryFavoriteListFlow) Operation() (*FavoriteList, error) {
 	if err := q.CheckJson(); err != nil {
 		return nil, err
 	}
@@ -60,8 +59,8 @@ func (q *QueryFavoriteListFlow) GetData() error {
 }
 
 func (q *QueryFavoriteListFlow) PackData() error {
-	log.Println("QueryFavoriteListFlow->PackData:", len(q.videos))
-	log.Println(q.videos[0].PlayUrl)
+	//log.Println("QueryFavoriteListFlow->PackData:", len(q.videos))
+	//log.Println(q.videos[0].PlayUrl)
 	q.videoList = &FavoriteList{Videos: q.videos}
 	return nil
 }

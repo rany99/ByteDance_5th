@@ -2,10 +2,10 @@ package comment
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/comment"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -59,11 +59,10 @@ func (p *ProxyPostCommentController) Operation() {
 // ParseJson 对JSON进行解析
 func (p *ProxyPostCommentController) ParseJson() error {
 	//解析UID
-	rawUid := p.Query("user_id")
-	uid, err := strconv.ParseInt(rawUid, 10, 64)
-	//log.Println("parseJson:uid", uid)
-	if err != nil {
-		return errors.New("uid解析错误")
+	rawUid, _ := p.Get("user_id")
+	uid, ok := rawUid.(int64)
+	if ok != true {
+		return errors.New(errortype.ParseUserIdErr)
 	}
 	//log.Println("parseJson:uid", uid)
 
@@ -71,7 +70,7 @@ func (p *ProxyPostCommentController) ParseJson() error {
 	rawVid := p.Query("video_id")
 	vid, err := strconv.ParseInt(rawVid, 10, 64)
 	if err != nil {
-		return errors.New("vid解析错误")
+		return errors.New(errortype.ParseVideoIdErr)
 	}
 	//log.Println("parseJson:vid", vid)
 
@@ -79,25 +78,25 @@ func (p *ProxyPostCommentController) ParseJson() error {
 	rawActionType := p.Query("action_type")
 	actionType, err := strconv.ParseInt(rawActionType, 10, 64)
 	if err != nil {
-		return err
+		return errors.New(errortype.ParseActionTypeErr)
 	}
-	log.Println("parseJson:actionType", actionType)
+	//log.Println("parseJson:actionType", actionType)
 
 	//根据actionType进行相应操作
 	switch actionType {
 	case 1: //添加评论
 		p.commentText = p.Query("comment_text")
-		log.Println(p.commentText)
+		//log.Println(p.commentText)
 	case 2: //删除评论
 		p.commentID, err = strconv.ParseInt(p.Query("comment_id"), 10, 64)
 		if err != nil {
-			return err
+			return errors.New(errortype.ParseCommentIdErr)
 		}
 	default:
-		return errors.New("action_type只能为1或2")
+		return errors.New(errortype.PostCommentActionTypeErr)
 	}
 
-	//填入防火层
+	//填入代理层
 	p.uid, p.vid, p.actionType = uid, vid, actionType
 	return nil
 }
@@ -119,5 +118,5 @@ func (p *ProxyPostCommentController) SendSucceed(comment *comment.CResponse) {
 		CommonResponse: common.CommonResponse{StatusCode: 0},
 		CResponse:      comment,
 	})
-	log.Println("SendSucceed")
+	//log.Println("SendSucceed")
 }

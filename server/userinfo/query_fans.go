@@ -16,14 +16,14 @@ type QueryFansFlow struct {
 }
 
 func QueryFans(uid int64) (*FansResponse, error) {
-	return NewQueryFansFlow(uid).Do()
+	return NewQueryFansFlow(uid).Operation()
 }
 
 func NewQueryFansFlow(uid int64) *QueryFansFlow {
 	return &QueryFansFlow{uid: uid}
 }
 
-func (q *QueryFansFlow) Do() (*FansResponse, error) {
+func (q *QueryFansFlow) Operation() (*FansResponse, error) {
 	if err := q.CheckJson(); err != nil {
 		return nil, err
 	}

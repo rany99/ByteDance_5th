@@ -2,6 +2,7 @@ package userinfo
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/server/userinfo"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 )
 
 type ProxyPostFollow struct {
-	//uid关注/取消关注uidFollowed操作
+	//uid关注/取消关注toUserId操作
 	uid        int64
 	toUserId   int64
 	actionType int64
@@ -34,30 +35,33 @@ func (p *ProxyPostFollow) Operation() {
 		p.SendFailed(err.Error())
 		return
 	}
-	p.SendSuccessfully()
+	p.SendSucceed()
 }
 
+// ParseJSON 校验传入的JSON信息
 func (p *ProxyPostFollow) ParseJSON() error {
 	//解析uid
 	rawUid, _ := p.Get("user_id")
 	uid, ok := rawUid.(int64)
 	if !ok {
-		return errors.New("ProxyPostFollow：uid解析错误")
+		return errors.New(errortype.ParseUserIdErr)
 	}
 
 	//解析被关注者id
 	rawToUserId := p.Query("to_user_id")
 	toUserId, err := strconv.ParseInt(rawToUserId, 10, 64)
 	if err != nil {
-		return nil
+		return errors.New(errortype.ParseToUserIdErr)
 	}
 
 	//解析action_type
 	rawActionType := p.Query("action_type")
 	actionType, err := strconv.ParseInt(rawActionType, 10, 64)
 	if err != nil {
-		return nil
+		return errors.New(errortype.ParseActionTypeErr)
 	}
+
+	//填入代理层
 	p.uid, p.toUserId, p.actionType = uid, toUserId, actionType
 	return nil
 }
@@ -69,10 +73,10 @@ func (p *ProxyPostFollow) SendFailed(msg string) {
 	})
 }
 
-func (p *ProxyPostFollow) SendSuccessfully() {
+func (p *ProxyPostFollow) SendSucceed() {
 	p.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 0,
-		StatusMsg:  "",
+		StatusMsg:  "关注成功",
 	})
 }
 
@@ -80,13 +84,13 @@ func (p *ProxyPostFollow) FollowAction() error {
 	if stateCode := userinfo.PostFollow(p.uid, p.toUserId, p.actionType); stateCode != userinfo.NoErrOR0 {
 		switch stateCode {
 		case userinfo.ERRTYPE1:
-			return errors.New("被关注的用户不存在")
+			return errors.New(errortype.FollowUserNoExistErr)
 		case userinfo.ERRTYPE2:
-			return errors.New("传入ActionType只能为1或2")
+			return errors.New(errortype.PostFollowActionTypeErr)
 		case userinfo.ERRTYPE3:
-			return errors.New("不能自己关注自己")
+			return errors.New(errortype.CantFollowSelfErr)
 		case userinfo.ERRTYPE4:
-			return errors.New("您已关注，请勿重复关注")
+			return errors.New(errortype.FollowAgainErr)
 		}
 	}
 	return nil
