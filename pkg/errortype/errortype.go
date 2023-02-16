@@ -75,3 +75,8 @@ const (
 	AlreadyPostFavorErr string = "您已经点过赞了，休息一下吧"
 	FavorCountZeroErr   string = "点赞数目为0"
 )
+
+const (
+	ParseMsgFromUserIdErr string = "from_user_id解析错误"
+	ParseMsgToUserIdErr   string = "to_user_id解析错误"
+)

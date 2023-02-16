@@ -3,7 +3,7 @@ package message
 import "ByteDance_5th/models"
 
 type MList struct {
-	Messages []*models.Message `json:"comment_list"`
+	Messages []*models.Message `json:"message_list"`
 }
 
 type QueryMessageListFlow struct {
@@ -28,6 +28,12 @@ func (q *QueryMessageListFlow) Operation() (*MList, error) {
 	if err := q.CheckJSON(); err != nil {
 		return nil, err
 	}
+	if err := q.GetData(); err != nil {
+		return nil, err
+	}
+	if err := q.PackData(); err != nil {
+		return nil, err
+	}
 	return q.MList, nil
 }
 
@@ -47,5 +53,10 @@ func (q *QueryMessageListFlow) CheckJSON() error {
 	if err := models.NewUserInfoDAO().IsUserInfoExist(q.toId); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (q *QueryMessageListFlow) PackData() error {
+	q.MList = &MList{Messages: q.messages}
 	return nil
 }

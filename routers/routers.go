@@ -3,6 +3,7 @@ package routers
 import (
 	"ByteDance_5th/controller/comment"
 	"ByteDance_5th/controller/login"
+	"ByteDance_5th/controller/message"
 	"ByteDance_5th/controller/userinfo"
 	"ByteDance_5th/controller/video"
 	"ByteDance_5th/models"
@@ -53,5 +54,10 @@ func InitRouters() *gin.Engine {
 	BG.GET("/relation/follower/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFansController)
 	//朋友列表
 	BG.GET("/relation/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFriendsController)
+
+	//消息接口
+	//消息记录
+	BG.GET("/message/chat/", middleware.Permission(), message.QueryMessageListController)
+
 	return r
 }

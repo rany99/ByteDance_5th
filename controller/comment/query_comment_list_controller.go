@@ -26,6 +26,13 @@ func QueryCommentListController(ctx *gin.Context) {
 	NewProxyCommentListHandler(ctx).Operation()
 }
 
+// NewProxyCommentListHandler 创建代理层
+func NewProxyCommentListHandler(ctx *gin.Context) *ProxyCommentListController {
+	return &ProxyCommentListController{
+		Context: ctx,
+	}
+}
+
 func (p *ProxyCommentListController) Operation() {
 	if err := p.ParseJSON(); err != nil {
 		p.SendFailed(err.Error())
@@ -76,11 +83,4 @@ func (p *ProxyCommentListController) SendSucceed(commentList *comment.CList) {
 		},
 		CList: commentList,
 	})
-}
-
-// NewProxyCommentListHandler 创建代理层
-func NewProxyCommentListHandler(ctx *gin.Context) *ProxyCommentListController {
-	return &ProxyCommentListController{
-		Context: ctx,
-	}
 }

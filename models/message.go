@@ -4,6 +4,7 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"errors"
 	"gorm.io/gorm"
+	"log"
 	"sync"
 	"time"
 )
@@ -13,7 +14,7 @@ type Message struct {
 	FromUserId int64     `json:"to_user_id"`
 	ToUserId   int64     `json:"from_user_id"`
 	Content    string    `json:"content"`
-	Optional   string    `json:"create_time"`
+	CreateTime int64     `json:"create_time"`
 	CreatedAt  time.Time `json:"-"`
 }
 
@@ -65,10 +66,11 @@ func (m *MessageDAO) QueryMsgById(id int64, msg *Message) error {
 
 // QueryMsgListByFromIdAndToId 通过 to_user_id 和 from_user_id 来查询聊天记录列表
 func (m *MessageDAO) QueryMsgListByFromIdAndToId(fromId int64, toId int64, messages *[]*Message) error {
+	log.Println(fromId, " ", toId)
 	if messages == nil {
 		return errors.New("QueryMsgListByFromIdAndToId" + errortype.PointerIsNilErr)
 	}
-	if err := DB.Model(&Message{}).Where("to_user_id = ? AND from_user_id = ?", toId, fromId).Order("created_at ASC").Find(messages).Error; err != nil {
+	if err := DB.Model(&Message{}).Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)", toId, fromId, fromId, toId).Order("created_at ASC").Find(messages).Error; err != nil {
 		return err
 	}
 	return nil
