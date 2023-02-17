@@ -6,7 +6,6 @@ import (
 	"ByteDance_5th/server/message"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -38,8 +37,8 @@ func (p *ProxyMessageListController) Operation() {
 		p.SendFailed(err.Error())
 		return
 	}
-	log.Println("f:", p.fromId)
-	log.Println("t", p.toId)
+	//log.Println("f:", p.fromId)
+	//log.Println("t", p.toId)
 	msgList, err := message.QueryMessageList(p.fromId, p.toId)
 	if err != nil {
 		p.SendFailed(err.Error())
@@ -51,14 +50,14 @@ func (p *ProxyMessageListController) Operation() {
 func (p *ProxyMessageListController) ParseJSON() error {
 	rawFromUid, _ := p.Get("user_id")
 	fromId, ok := rawFromUid.(int64)
-	log.Println("fromId", fromId)
+	//log.Println("fromId", fromId)
 	if !ok {
 		return errors.New(errortype.ParseMsgFromUserIdErr)
 	}
 
 	rawToUid := p.Query("to_user_id")
 	toId, err := strconv.ParseInt(rawToUid, 10, 64)
-	log.Println("to_user_id", toId)
+	//log.Println("to_user_id", toId)
 	if err != nil {
 		return errors.New(errortype.ParseToUserIdErr)
 	}

@@ -111,6 +111,45 @@ func (u *UserInfoDao) GetFansById(id int64, userList *[]*UserInfo) error {
 	return nil
 }
 
+// select a.user_id from follower as a inner join follower as b on a.follower_id = '1' and b.follower_id = '1'
+
+func (u *UserInfoDao) GetFriendsById(id int64, userList *[]*UserInfo) error {
+	if userList == nil {
+		return errors.New("GetFriendsById" + errortype.UserNoExistErr)
+	}
+	if err := DB.Raw("SELECT * FROM user_infos WHERE user_infos.id IN (SELECT a.user_info_id FROM user_relations a JOIN user_relations b ON a.user_info_id  = b.follow_id AND a.follow_id = b.user_info_id  AND a.follow_id = ?)", id).Scan(userList).Error; err != nil {
+		return err
+	}
+	//for _, f := range followList {
+	//	log.Println(f)
+	//}
+	//log.Println("followList:", len(followList))
+	//var fansList []int64
+	//if err := DB.Raw("SELECT u.id FROM user_relations r, user_infos u WHERE r.user_info_id = ? AND r.follow_id = u.id", id).Scan(&fansList).Error; err != nil {
+	//	return err
+	//}
+	//log.Println(len(followList), len(fansList))
+	//vis := map[int64]bool{}
+	//for _, f := range followList {
+	//	vis[f] = true
+	//}
+	//var friends []*UserInfo
+	//cnt := 0
+	//for _, f := range fansList {
+	//	if _, ok := vis[f]; ok {
+	//		log.Println(f)
+	//		friends = append(friends, &UserInfo{})
+	//		_ = u.QueryUserInfoById(f, friends[cnt])
+	//		cnt++
+	//	}
+	//}
+	//log.Println(len(friends))
+	//log.Println("-", friends[0].Id, friends[0].Name)
+	//userList = &friends
+	//log.Println(len(*userList))
+	return nil
+}
+
 // IsUserInfoExist 判断用户表中是否存在该id的用户
 func (u *UserInfoDao) IsUserInfoExist(id int64) error {
 	var userInfo UserInfo

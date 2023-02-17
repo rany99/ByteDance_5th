@@ -4,7 +4,6 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"errors"
 	"gorm.io/gorm"
-	"log"
 	"sync"
 	"time"
 )
@@ -66,7 +65,7 @@ func (m *MessageDAO) QueryMsgById(id int64, msg *Message) error {
 
 // QueryMsgListByFromIdAndToId 通过 to_user_id 和 from_user_id 来查询聊天记录列表
 func (m *MessageDAO) QueryMsgListByFromIdAndToId(fromId int64, toId int64, messages *[]*Message) error {
-	log.Println(fromId, " ", toId)
+	//log.Println(fromId, " ", toId)
 	if messages == nil {
 		return errors.New("QueryMsgListByFromIdAndToId" + errortype.PointerIsNilErr)
 	}
@@ -74,4 +73,21 @@ func (m *MessageDAO) QueryMsgListByFromIdAndToId(fromId int64, toId int64, messa
 		return err
 	}
 	return nil
+}
+
+// QueryLatestMsgByUid 根据用户uid返回最新的
+func (m *MessageDAO) QueryLatestMsgByUid(fromId int64, toId int64) (string, int64, error) {
+	var message Message
+	//log.Println(fromId, toId)
+	if err := DB.Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)", toId, fromId, fromId, toId).Order("created_at DESC").First(&message).Error; err != nil {
+		return "", 0, err
+	}
+	var content string = message.Content
+	var msgType int64
+	if message.FromUserId == fromId {
+		msgType = 1
+	} else {
+		msgType = 0
+	}
+	return content, msgType, nil
 }

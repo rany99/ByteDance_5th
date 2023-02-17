@@ -51,21 +51,26 @@ func (q *QueryFriendsFlow) CheckJSON() error {
 // GetData 获取朋友列表信息
 func (q *QueryFriendsFlow) GetData() error {
 	var userList []*models.UserInfo
-	if err := models.NewUserInfoDAO().GetFansById(q.uid, &userList); err != nil {
+	if err := models.NewUserInfoDAO().GetFriendsById(q.uid, &userList); err != nil {
 		return err
 	}
+	log.Println(len(userList))
 	for i := 0; i < len(userList); i++ {
 		userList[i].IsFollow = cache.NewProxyIndexMap().GetAFollowB(q.uid, userList[i].Id)
 	}
 	friendList := make([]*models.Friend, len(userList))
 	for i, u := range userList {
+		//GetLatestMsgByUid 的 err 可能由两用户没有进行过消息通信造成，非致命，继续执行
+		msg, msgType, _ := GetLatestMsgByUid(q.uid, u.Id)
 		friendList[i] = &models.Friend{
 			UserInfo: *u,
 			Avatar:   GetAvatarUrl(i),
+			Message:  msg,
+			MsgType:  msgType,
 		}
 	}
 	q.userList = friendList
-	log.Println(len(friendList))
+	//log.Println(len(friendList))
 	return nil
 }
 
@@ -81,4 +86,13 @@ func GetAvatarUrl(i int) string {
 	fileName := strconv.Itoa(i%models.AvatarCnt) + ".jpg"
 	var url string = fmt.Sprintf("http://%s:%d/static/avatar/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
 	return url
+}
+
+// GetLatestMsgByUid 通过user_id 返回最新一条聊天记录的内容以及聊天记录的类型
+func GetLatestMsgByUid(fromId int64, toId int64) (string, int64, error) {
+	msg, msgType, err := models.NewMessageDAO().QueryLatestMsgByUid(fromId, toId)
+	if err != nil {
+		return "", 0, err
+	}
+	return msg, msgType, nil
 }

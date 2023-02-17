@@ -7,8 +7,13 @@ import (
 )
 
 func main() {
+
+	//gin.SetMode(gin.ReleaseMode)
+
 	r := routers.InitRouters()
-	err := r.Run(fmt.Sprintf(":%d", common.Conf.SE.Port)) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+
+	err := r.Run(fmt.Sprintf(":%d", common.Conf.SE.Port))
+
 	if err != nil {
 		return
 	}
