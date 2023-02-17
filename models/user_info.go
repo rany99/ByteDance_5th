@@ -13,11 +13,14 @@ type UserInfo struct {
 	FollowCount   int64       `json:"follow_count" gorm:"follow_count,omitempty"`
 	FollowerCount int64       `json:"follower_count" gorm:"follower_count,omitempty"`
 	IsFollow      bool        `json:"is_follow" gorm:"is_follow,omitempty"`
+	WorkCount     int64       `json:"work_count" gorm:"work_count,omitempty"`
+	FavoriteCount int64       `json:"favorite_count" gorm:"favorite_count,omitempty"`
 	User          *User       `json:"-"`
 	Videos        []*Video    `json:"-"`
 	Follows       []*UserInfo `json:"-" gorm:"many2many:user_relations;"`
 	FavorVideos   []*Video    `json:"-" gorm:"many2many:user_favor_videos;"`
 	Comments      []*Comment  `json:"-"`
+	Messages      []*Message  `json:"-"`
 }
 
 type UserInfoDao struct {

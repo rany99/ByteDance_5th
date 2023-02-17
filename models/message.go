@@ -10,7 +10,7 @@ import (
 
 type Message struct {
 	Id         int64     `json:"id"`
-	FromUserId int64     `json:"to_user_id"`
+	UserInfoId int64     `json:"to_user_id"`
 	ToUserId   int64     `json:"from_user_id"`
 	Content    string    `json:"content"`
 	CreateTime int64     `json:"create_time"`
@@ -69,7 +69,7 @@ func (m *MessageDAO) QueryMsgListByFromIdAndToId(fromId int64, toId int64, messa
 	if messages == nil {
 		return errors.New("QueryMsgListByFromIdAndToId" + errortype.PointerIsNilErr)
 	}
-	if err := DB.Model(&Message{}).Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)", toId, fromId, fromId, toId).Order("created_at ASC").Find(messages).Error; err != nil {
+	if err := DB.Model(&Message{}).Where("(to_user_id = ? AND user_info_id = ?) OR (to_user_id = ? AND user_info_id = ?)", toId, fromId, fromId, toId).Order("created_at ASC").Find(messages).Error; err != nil {
 		return err
 	}
 	return nil
@@ -79,12 +79,12 @@ func (m *MessageDAO) QueryMsgListByFromIdAndToId(fromId int64, toId int64, messa
 func (m *MessageDAO) QueryLatestMsgByUid(fromId int64, toId int64) (string, int64, error) {
 	var message Message
 	//log.Println(fromId, toId)
-	if err := DB.Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)", toId, fromId, fromId, toId).Order("created_at DESC").First(&message).Error; err != nil {
+	if err := DB.Where("(to_user_id = ? AND user_info_id = ?) OR (to_user_id = ? AND user_info_id = ?)", toId, fromId, fromId, toId).Order("created_at DESC").First(&message).Error; err != nil {
 		return "", 0, err
 	}
 	var content string = message.Content
 	var msgType int64
-	if message.FromUserId == fromId {
+	if message.UserInfoId == fromId {
 		msgType = 1
 	} else {
 		msgType = 0

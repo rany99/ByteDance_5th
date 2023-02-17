@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const Limit int = 2
+const Limit int = 30
 
 type FeedList struct {
 	List     []*models.Video `json:"video_list,omitempty"`
