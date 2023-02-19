@@ -3,7 +3,7 @@ package login
 import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
-	"ByteDance_5th/server/login"
+	"ByteDance_5th/service/login"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

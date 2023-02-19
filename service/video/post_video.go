@@ -2,7 +2,8 @@ package video
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/util"
+	"ByteDance_5th/pkg/common"
+	"fmt"
 )
 
 type PostVideoFlow struct {
@@ -24,8 +25,8 @@ func (p *PostVideoFlow) Opeartion() error {
 func (p *PostVideoFlow) GenerateUrl() {
 	//log.Println("VideoName", p.VideoName)
 	//log.Println("CoverName", p.CoverName)
-	p.VideoName = util.GetVideoUrl(p.VideoName)
-	p.CoverName = util.GetImageUrl(p.CoverName)
+	p.VideoName = GetVideoUrl(p.VideoName)
+	p.CoverName = GetImageUrl(p.CoverName)
 }
 
 func (p *PostVideoFlow) publish() error {
@@ -51,4 +52,14 @@ func NewPostVideoFlow(userId int64, videoName, coverName, title string) *PostVid
 // PostVideo 发布视频
 func PostVideo(userId int64, videoName, coverName, title string) error {
 	return NewPostVideoFlow(userId, videoName, coverName, title).Opeartion()
+}
+
+// GetVideoUrl 返回url
+func GetVideoUrl(fileName string) string {
+	return fmt.Sprintf("http://%s:%d/static/video/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
+}
+
+// GetImageUrl 返回url
+func GetImageUrl(fileName string) string {
+	return fmt.Sprintf("http://%s:%d/static/cover/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
 }

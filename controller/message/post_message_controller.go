@@ -3,7 +3,7 @@ package message
 import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
-	"ByteDance_5th/server/message"
+	"ByteDance_5th/service/message"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"

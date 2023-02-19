@@ -1,6 +1,6 @@
 //----------!!!Attention:请确保ffmpeg.exe已经置于GoPath路径下!!!----------
 
-package util
+package information
 
 import (
 	"ByteDance_5th/pkg/errortype"

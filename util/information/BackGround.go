@@ -1,4 +1,4 @@
-package util
+package information
 
 import (
 	"ByteDance_5th/pkg/common"

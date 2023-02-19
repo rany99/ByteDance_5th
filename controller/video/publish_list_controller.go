@@ -3,7 +3,7 @@ package video
 import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
-	"ByteDance_5th/server/video"
+	"ByteDance_5th/service/video"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

@@ -5,7 +5,6 @@ const (
 	ParseUserIdErr     string = "user_id解析错误"
 	ParseVideoIdErr    string = "video_id解析错误"
 	ParseActionTypeErr string = "action_type解析错误"
-	ParseCommentIdErr  string = "comment_id解析错误"
 	ParsePasswordErr   string = "password解析错误"
 	PointerIsNilErr    string = "传入指针为空"
 	UserNoExistErr     string = "用户不存在"
@@ -67,6 +66,7 @@ const (
 
 // 评论错误信息
 const (
+	CommentEmptyErr      string = "输入评论为空"
 	VideoHasNoCommentErr string = "还没有人发现这里，赶紧抢首评吧"
 	VideoListEmptyErr    string = "传入comments列表为空"
 )

@@ -1,9 +1,9 @@
 package video
 
 import (
-	"ByteDance_5th/cache"
 	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/errortype"
+	"ByteDance_5th/util/cache"
 	"errors"
 )
 

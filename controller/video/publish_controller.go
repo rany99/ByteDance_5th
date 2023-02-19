@@ -3,8 +3,10 @@ package video
 import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
-	"ByteDance_5th/server/video"
+	"ByteDance_5th/service/video"
 	"ByteDance_5th/util"
+	"ByteDance_5th/util/information"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"path/filepath"
@@ -46,9 +48,13 @@ func PublishHandler(ctx *gin.Context) {
 		}
 		//log.Println("视频格式解析成功")
 
+		node, _ := util.NewWorker(1)
+		randomId := node.GetId()
+		fileID := fmt.Sprintf("%v", randomId)
+
 		//生成视频存储路径
-		name := util.NewUnicFileName(userId)
-		filename := name + suffix
+		//name := util.NewUnicFileName(userId)
+		filename := fileID + suffix
 		savePath := filepath.Join("./public/video", filename)
 		//log.Println("存储路径：", savePath)
 		if err = ctx.SaveUploadedFile(file, savePath); err != nil {
@@ -57,13 +63,14 @@ func PublishHandler(ctx *gin.Context) {
 		}
 
 		//生成封面存储路径
-		snapShotFileName := util.NewUnicFileName(userId) + ".png"
+		//snapShotFileName := util.NewUnicFileName(userId) + ".png"
+		snapShotFileName := fileID + ".png"
 		//log.Println(snapShotFileName)
 		snapShotPath := filepath.Join("./public/cover", snapShotFileName)
 		//log.Println(snapShotPath)
 
 		//生成视频封面
-		if err = util.SnapShotFromVideo(savePath, snapShotPath, 1); err != nil {
+		if err = information.SnapShotFromVideo(savePath, snapShotPath, 1); err != nil {
 			PublishError(ctx, err.Error())
 			continue
 		}

@@ -2,13 +2,12 @@ package comment
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/pkg/constantval"
 	"ByteDance_5th/pkg/errortype"
 	"errors"
 )
 
-type CResponse struct {
-	CRComment *models.Comment `json:"comment"`
+type PostCommentResponse struct {
+	CommentList *models.Comment `json:"comment"`
 }
 
 type PostCommentFlow struct {
@@ -18,11 +17,11 @@ type PostCommentFlow struct {
 	actionType  int64
 	commentText string
 	comment     *models.Comment
-	*CResponse
+	*PostCommentResponse
 }
 
 // PostComment 发布评论
-func PostComment(uid, vid, commentId, actionType int64, commentText string) (*CResponse, error) {
+func PostComment(uid, vid, commentId, actionType int64, commentText string) (*PostCommentResponse, error) {
 	return NewPostCommentFlow(uid, vid, commentId, actionType, commentText).Operation()
 }
 
@@ -30,8 +29,8 @@ func NewPostCommentFlow(uid int64, vid int64, commentId int64, actionType int64,
 	return &PostCommentFlow{uid: uid, vid: vid, commentId: commentId, actionType: actionType, commentText: commentText}
 }
 
-func (p *PostCommentFlow) Operation() (*CResponse, error) {
-	if err := p.CheckJson(); err != nil {
+func (p *PostCommentFlow) Operation() (*PostCommentResponse, error) {
+	if err := p.CheckJSON(); err != nil {
 		return nil, err
 	}
 	if err := p.GetData(); err != nil {
@@ -43,11 +42,11 @@ func (p *PostCommentFlow) Operation() (*CResponse, error) {
 	}
 	//log.Println("Do PackData:", p.comment.Content)
 	//log.Println(p.CResponse.CRComment.Content)
-	return p.CResponse, nil
+	return p.PostCommentResponse, nil
 }
 
 // CheckJson 检查Json传入数据是否正确
-func (p *PostCommentFlow) CheckJson() error {
+func (p *PostCommentFlow) CheckJSON() error {
 	if err := p.CheckUid(); err != nil {
 		return err
 	}
@@ -88,9 +87,9 @@ func (p *PostCommentFlow) CheckActionType() error {
 func (p *PostCommentFlow) GetData() error {
 	var err error
 	switch p.actionType {
-	case constantval.CreateCommentActionType: //创建
+	case 1: //创建
 		p.comment, err = p.CreateComment()
-	case constantval.DelCommentActionType: //删除
+	case 2: //删除
 		p.comment, err = p.DeleteComment()
 	default:
 		return errors.New(errortype.PostCommentActionTypeErr)
@@ -133,7 +132,7 @@ func (p *PostCommentFlow) PackData() error {
 	_ = models.NewUserInfoDAO().QueryUserInfoById(p.comment.UserInfoId, &userInfo)
 	p.comment.User = userInfo
 	_ = FillComment(p.comment)
-	p.CResponse = &CResponse{CRComment: p.comment}
+	p.PostCommentResponse = &PostCommentResponse{CommentList: p.comment}
 	return nil
 }
 

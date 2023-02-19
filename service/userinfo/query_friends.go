@@ -1,9 +1,9 @@
 package userinfo
 
 import (
-	"ByteDance_5th/cache"
 	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/util/cache"
 	"fmt"
 	"log"
 	"strconv"

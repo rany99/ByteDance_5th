@@ -4,6 +4,7 @@ import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/util"
+	"ByteDance_5th/util/information"
 	"errors"
 )
 
@@ -66,9 +67,9 @@ func (q *PostUserLoginFlow) GetData() error {
 	}
 	userInfo := models.UserInfo{
 		Name:            q.username,
-		Avatar:          util.GetAvatarUrl(),
-		BackgroundImage: util.GetBackGroundUrl(),
-		Signature:       util.GetSignature(),
+		Avatar:          information.GetAvatarUrl(),
+		BackgroundImage: information.GetBackGroundUrl(),
+		Signature:       information.GetSignature(),
 		User:            &userLogin,
 	}
 

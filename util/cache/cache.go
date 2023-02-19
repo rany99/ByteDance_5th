@@ -7,16 +7,19 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type ProxyIndexMap struct {
+// ProxyCache 缓存层
+type ProxyCache struct {
 }
+
+// 代理层
+var proxyIndexOperation ProxyCache
 
 var (
 	ctx = context.Background()
 	rdb *redis.Client
 )
 
-var proxyIndexOperation ProxyIndexMap
-
+// redis 初始化
 func init() {
 	rdb = redis.NewClient(
 		&redis.Options{
@@ -26,34 +29,34 @@ func init() {
 		})
 }
 
-func NewProxyIndexMap() *ProxyIndexMap {
+func NewProxyIndexMap() *ProxyCache {
 	return &proxyIndexOperation
 }
 
 // GetVideoFavor 获取点赞状态 ret： true点赞 false未点赞
-func (p *ProxyIndexMap) GetVideoFavor(userid, videoid int64) bool {
-	key := fmt.Sprintf("favor:%d", userid)
-	return rdb.SIsMember(ctx, key, videoid).Val()
+func (p *ProxyCache) GetVideoFavor(uid, vid int64) bool {
+	key := fmt.Sprintf("favor:%d", uid)
+	return rdb.SIsMember(ctx, key, vid).Val()
 }
 
 // SetVideoFavor isFavor: true点赞 false取消点赞
-func (p *ProxyIndexMap) SetVideoFavor(userid, videoId int64, isFavor bool) {
-	key := fmt.Sprintf("favor:%d", userid)
+func (p *ProxyCache) SetVideoFavor(uid, vid int64, isFavor bool) {
+	key := fmt.Sprintf("favor:%d", uid)
 	if isFavor {
-		rdb.SAdd(ctx, key, videoId)
+		rdb.SAdd(ctx, key, vid)
 		return
 	}
-	rdb.SRem(ctx, key, videoId)
+	rdb.SRem(ctx, key, vid)
 }
 
 // GetAFollowB 判断A是否关注了B
-func (p *ProxyIndexMap) GetAFollowB(a, b int64) bool {
+func (p *ProxyCache) GetAFollowB(a, b int64) bool {
 	key := fmt.Sprintf("relation:%d", a)
 	return rdb.SIsMember(ctx, key, b).Val()
 }
 
 // SetAFollowB isFollowed：true已关注 false未关注
-func (p *ProxyIndexMap) SetAFollowB(a, b int64, isFollowed bool) {
+func (p *ProxyCache) SetAFollowB(a, b int64, isFollowed bool) {
 	key := fmt.Sprintf("relation:%d", a)
 	if isFollowed {
 		rdb.SAdd(ctx, key, b)

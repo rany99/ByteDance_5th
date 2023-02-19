@@ -67,18 +67,6 @@ func (u *UserInfoDao) QueryUserInfoById(id int64, userinfo *UserInfo) error {
 	return nil
 }
 
-// QueryUserInfoById 查询用户
-//func (u *UserInfoDao) QueryUserInfoById(id int64, userinfo *UserInfo) error {
-//	if userinfo == nil {
-//		return errors.New("QueryUserInfoById" + errortype.PointerIsNilErr)
-//	}
-//	DB.Where("id = ?", id).Select([]string{"id", "name", "follow_count", "is_follow"}).First(userinfo)
-//	if userinfo.Id == 0 {
-//		return errors.New(errortype.UserNoExistErr)
-//	}
-//	return nil
-//}
-
 // AddUserInfo 将UserInfo指针信息写入数据库
 func (u *UserInfoDao) AddUserInfo(userinfo *UserInfo) error {
 	if userinfo == nil {

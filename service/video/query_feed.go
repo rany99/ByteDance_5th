@@ -2,7 +2,9 @@ package video
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/util"
+	"ByteDance_5th/pkg/errortype"
+	"ByteDance_5th/util/cache"
+	"errors"
 	"time"
 )
 
@@ -60,7 +62,7 @@ func (q *QueryFeedListFlow) GetData() error {
 	if err := models.NewVideoDao().QueryVideoListByLastTimeAndLimit(q.latestTime, Limit, &q.videos); err != nil {
 		return err
 	}
-	latestTime, _ := util.FillVideos(q.userid, &q.videos)
+	latestTime, _ := FillVideos(q.userid, &q.videos)
 
 	if latestTime != nil {
 		q.nextTime = (*latestTime).UnixNano() / 1e6
@@ -78,4 +80,27 @@ func (q *QueryFeedListFlow) PackData() error {
 		NextTime: q.nextTime,
 	}
 	return nil
+}
+
+// FillVideos 更新视频作者信息
+func FillVideos(userid int64, videos *[]*models.Video) (*time.Time, error) {
+	videosLen := len(*videos)
+	if videos == nil || videosLen == 0 {
+		return nil, errors.New("FillVideos" + errortype.PointerIsNilErr)
+	}
+	dao := models.NewUserInfoDAO()
+	p := cache.NewProxyIndexMap()
+	latestTime := (*videos)[videosLen-1].CreatedAt
+	for i := 0; i < videosLen; i++ {
+		var author models.UserInfo
+		if err := dao.QueryUserInfoById((*videos)[i].UserInfoId, &author); err != nil {
+			continue
+		}
+		author.IsFollow = p.GetAFollowB(userid, author.Id)
+		(*videos)[i].Author = author
+		if userid > 0 {
+			(*videos)[i].IsFavorite = p.GetVideoFavor(userid, (*videos)[i].Id)
+		}
+	}
+	return &latestTime, nil
 }

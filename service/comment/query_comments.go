@@ -6,29 +6,29 @@ import (
 	"errors"
 )
 
-type CList struct {
+type QueryCommentListResponse struct {
 	Comments []*models.Comment `json:"comment_list"`
 }
 
 type QueryCommentListFlow struct {
-	uid         int64
+	//uid         int64
 	vid         int64
 	comments    []*models.Comment
-	commentList *CList
+	commentList *QueryCommentListResponse
 }
 
-func QueryCommentList(uid, vid int64) (*CList, error) {
-	return NewQueryCommentListFlow(uid, vid).Operation()
+func QueryCommentList(vid int64) (*QueryCommentListResponse, error) {
+	return NewQueryCommentListFlow(vid).Operation()
 }
 
-func NewQueryCommentListFlow(uid int64, vid int64) *QueryCommentListFlow {
+func NewQueryCommentListFlow(vid int64) *QueryCommentListFlow {
 	return &QueryCommentListFlow{
-		uid: uid,
+		//uid: uid,
 		vid: vid,
 	}
 }
 
-func (q *QueryCommentListFlow) Operation() (*CList, error) {
+func (q *QueryCommentListFlow) Operation() (*QueryCommentListResponse, error) {
 	if err := q.CheckJson(); err != nil {
 		//log.Println("QueryCommentListFlow:checkJSON失败")
 		return nil, err
@@ -46,9 +46,9 @@ func (q *QueryCommentListFlow) Operation() (*CList, error) {
 
 func (q *QueryCommentListFlow) CheckJson() error {
 	//判断用户是否存在
-	if err := models.NewUserInfoDAO().IsUserInfoExist(q.uid); err != nil {
-		return err
-	}
+	//if err := models.NewUserInfoDAO().IsUserInfoExist(q.uid); err != nil {
+	//	return err
+	//}
 	//判断视频是否存在
 	if !models.NewVideoDao().VideoAlreadyExist(q.vid) {
 		return errors.New(errortype.VideoNoExistErr)
@@ -67,7 +67,7 @@ func (q *QueryCommentListFlow) GetData() error {
 }
 
 func (q *QueryCommentListFlow) PackData() error {
-	q.commentList = &CList{Comments: q.comments}
+	q.commentList = &QueryCommentListResponse{Comments: q.comments}
 	return nil
 }
 
