@@ -2,8 +2,8 @@ package routers
 
 import (
 	"ByteDance_5th/controller/comment"
-	"ByteDance_5th/controller/login"
 	"ByteDance_5th/controller/message"
+	"ByteDance_5th/controller/user"
 	"ByteDance_5th/controller/userinfo"
 	"ByteDance_5th/controller/video"
 	"ByteDance_5th/models"
@@ -19,47 +19,65 @@ func InitRouters() *gin.Engine {
 	r := gin.Default()
 	r.Static("static", "./public")
 
-	BG := r.Group("/douyin")
+	BaseGroup := r.Group("/douyin")
 
 	//基础接口
 	//视频流接口
-	BG.GET("/feed/", video.FeedListController)
-	//用户注册
-	BG.POST("/user/register/", middleware.ShaMiddleWare(), login.RegisterController)
-	//用户登录
-	BG.POST("/user/login/", middleware.ShaMiddleWare(), login.UserLoginController)
-	//用户信息
-	BG.GET("/user/", middleware.Permission(), userinfo.InfoController)
-	//投稿接口
-	BG.POST("/publish/action/", middleware.Permission(), video.PublishHandler)
-	//发布列表
-	BG.GET("/publish/list/", middleware.NoAuthToGetUserId(), video.QueryVideoListController)
+	BaseGroup.GET("/feed/", video.FeedListController)
+	userGroup := BaseGroup.Group("/user")
+	{
+		//用户注册
+		userGroup.POST("/register/", middleware.ShaMiddleWare(), user.RegisterController)
+		//用户登录
+		userGroup.POST("/login/", middleware.ShaMiddleWare(), user.LoginController)
+		//用户信息
+		userGroup.GET("/", middleware.JwtMiddleware(), userinfo.InfoController)
+	}
+	publish := BaseGroup.Group("/publish")
+	{
+		//投稿接口
+		publish.POST("/action/", middleware.JwtMiddleware(), video.PublishHandler)
+		//发布列表
+		publish.GET("/list/", middleware.NoAuthToGetUserId(), video.QueryVideoListController)
+	}
 
 	//互动接口
-	//赞操作
-	BG.POST("/favorite/action/", middleware.Permission(), video.PostFavorController)
-	//喜欢列表
-	BG.GET("/favorite/list/", middleware.NoAuthToGetUserId(), video.QueryFavoriteListController)
-	//评论操作
-	BG.POST("/comment/action/", middleware.Permission(), comment.PostCommentController)
-	//评论列表
-	BG.GET("/comment/list/", middleware.Permission(), comment.QueryCommentListController)
+	favorite := BaseGroup.Group("/favorite")
+	{
+		//赞操作
+		favorite.POST("/action/", middleware.JwtMiddleware(), video.PostFavorController)
+		//喜欢列表
+		favorite.GET("/list/", middleware.NoAuthToGetUserId(), video.QueryFavoriteListController)
+	}
+	commentGroup := BaseGroup.Group("/comment")
+	{
+		//评论操作
+		commentGroup.POST("/action/", middleware.JwtMiddleware(), comment.PostCommentController)
+		//评论列表
+		commentGroup.GET("/list/", middleware.JwtMiddleware(), comment.QueryCommentListController)
+	}
 
 	//社交接口
-	//关注操作
-	BG.POST("/relation/action/", middleware.Permission(), userinfo.PostFollowController)
-	//关注列表
-	BG.GET("/relation/follow/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFollowsController)
-	//粉丝列表
-	BG.GET("/relation/follower/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFansController)
-	//朋友列表
-	BG.GET("/relation/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFriendsController)
+	relation := BaseGroup.Group("/relation")
+	{
+		//关注操作
+		relation.POST("/action/", middleware.JwtMiddleware(), userinfo.PostFollowController)
+		//关注列表
+		relation.GET("/follow/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFollowsController)
+		//粉丝列表
+		relation.GET("/follower/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFansController)
+		//朋友列表
+		relation.GET("/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFriendsController)
+	}
 
 	//消息接口
-	//发送消息
-	BG.POST("/message/action/", middleware.Permission(), message.PostMessageController)
-	//消息记录
-	BG.GET("/message/chat/", middleware.Permission(), message.QueryMessageListController)
+	messageGroup := BaseGroup.Group("/message")
+	{
+		//发送消息
+		messageGroup.POST("/action/", middleware.JwtMiddleware(), message.PostMessageController)
+		//消息记录
+		messageGroup.GET("/chat/", middleware.JwtMiddleware(), message.QueryMessageListController)
+	}
 
 	return r
 }

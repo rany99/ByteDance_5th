@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-// Permission 中间件
-func Permission() gin.HandlerFunc {
+// JwtMiddleware 中间件
+func JwtMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		tokenStr := context.Query("token")
 		if tokenStr == "" {

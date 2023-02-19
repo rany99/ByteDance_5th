@@ -1,4 +1,4 @@
-package login
+package user
 
 import (
 	"ByteDance_5th/models"
