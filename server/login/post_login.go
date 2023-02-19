@@ -9,7 +9,7 @@ import (
 
 // PostUserLogin 注册用户并得到token和id
 func PostUserLogin(username, password string) (*LoginResponse, error) {
-	return NewPostUserLoginFlow(username, password).Do()
+	return NewPostUserLoginFlow(username, password).Operation()
 }
 
 func NewPostUserLoginFlow(username, password string) *PostUserLoginFlow {
@@ -25,25 +25,25 @@ type PostUserLoginFlow struct {
 	token  string
 }
 
-func (q *PostUserLoginFlow) Do() (*LoginResponse, error) {
+func (q *PostUserLoginFlow) Operation() (*LoginResponse, error) {
 	//对参数进行合法性验证
-	if err := q.checkNum(); err != nil {
+	if err := q.CheckJSON(); err != nil {
 		return nil, err
 	}
 
 	//更新数据到数据库
-	if err := q.updateData(); err != nil {
+	if err := q.GetData(); err != nil {
 		return nil, err
 	}
 
 	//打包response
-	if err := q.packResponse(); err != nil {
+	if err := q.PackResponse(); err != nil {
 		return nil, err
 	}
 	return q.data, nil
 }
 
-func (q *PostUserLoginFlow) checkNum() error {
+func (q *PostUserLoginFlow) CheckJSON() error {
 	if q.username == "" {
 		return errors.New(errortype.UserNameEmptyErr)
 	}
@@ -56,12 +56,21 @@ func (q *PostUserLoginFlow) checkNum() error {
 	return nil
 }
 
-func (q *PostUserLoginFlow) updateData() error {
+func (q *PostUserLoginFlow) GetData() error {
 
 	//准备好userInfo,默认name为username
 
-	userLogin := models.User{Username: q.username, Password: q.password}
-	userinfo := models.UserInfo{User: &userLogin, Name: q.username}
+	userLogin := models.User{
+		Username: q.username,
+		Password: q.password,
+	}
+	userInfo := models.UserInfo{
+		Name:            q.username,
+		Avatar:          util.GetAvatarUrl(),
+		BackgroundImage: util.GetBackGroundUrl(),
+		Signature:       util.GetSignature(),
+		User:            &userLogin,
+	}
 
 	//判断用户名是否已经存在
 	userLoginDAO := models.NewLoginDao()
@@ -70,7 +79,7 @@ func (q *PostUserLoginFlow) updateData() error {
 	}
 
 	userInfoDAO := models.NewUserInfoDAO()
-	err := userInfoDAO.AddUserInfo(&userinfo)
+	err := userInfoDAO.AddUserInfo(&userInfo)
 	if err != nil {
 		return err
 	}
@@ -81,11 +90,11 @@ func (q *PostUserLoginFlow) updateData() error {
 		return err
 	}
 	q.token = token
-	q.userid = userinfo.Id
+	q.userid = userInfo.Id
 	return nil
 }
 
-func (q *PostUserLoginFlow) packResponse() error {
+func (q *PostUserLoginFlow) PackResponse() error {
 	q.data = &LoginResponse{
 		UserId: q.userid,
 		Token:  q.token,

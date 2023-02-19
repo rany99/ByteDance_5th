@@ -2,6 +2,7 @@ package comment
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/constantval"
 	"ByteDance_5th/pkg/errortype"
 	"errors"
 )
@@ -22,14 +23,14 @@ type PostCommentFlow struct {
 
 // PostComment 发布评论
 func PostComment(uid, vid, commentId, actionType int64, commentText string) (*CResponse, error) {
-	return NewPostCommentFlow(uid, vid, commentId, actionType, commentText).Do()
+	return NewPostCommentFlow(uid, vid, commentId, actionType, commentText).Operation()
 }
 
 func NewPostCommentFlow(uid int64, vid int64, commentId int64, actionType int64, commentText string) *PostCommentFlow {
 	return &PostCommentFlow{uid: uid, vid: vid, commentId: commentId, actionType: actionType, commentText: commentText}
 }
 
-func (p *PostCommentFlow) Do() (*CResponse, error) {
+func (p *PostCommentFlow) Operation() (*CResponse, error) {
 	if err := p.CheckJson(); err != nil {
 		return nil, err
 	}
@@ -87,9 +88,9 @@ func (p *PostCommentFlow) CheckActionType() error {
 func (p *PostCommentFlow) GetData() error {
 	var err error
 	switch p.actionType {
-	case 1: //创建
+	case constantval.CreateCommentActionType: //创建
 		p.comment, err = p.CreateComment()
-	case 2: //删除
+	case constantval.DelCommentActionType: //删除
 		p.comment, err = p.DeleteComment()
 	default:
 		return errors.New(errortype.PostCommentActionTypeErr)

@@ -7,20 +7,25 @@ import (
 	"sync"
 )
 
+// UserInfo 处存用户信息，已根据最新版文档增加 头像、签名、背景、总赞数字段
 type UserInfo struct {
-	Id            int64       `json:"id" gorm:"id,omitempty"`
-	Name          string      `json:"name" gorm:"name,omitempty"`
-	FollowCount   int64       `json:"follow_count" gorm:"follow_count,omitempty"`
-	FollowerCount int64       `json:"follower_count" gorm:"follower_count,omitempty"`
-	IsFollow      bool        `json:"is_follow" gorm:"is_follow,omitempty"`
-	WorkCount     int64       `json:"work_count" gorm:"work_count,omitempty"`
-	FavoriteCount int64       `json:"favorite_count" gorm:"favorite_count,omitempty"`
-	User          *User       `json:"-"`
-	Videos        []*Video    `json:"-"`
-	Follows       []*UserInfo `json:"-" gorm:"many2many:user_relations;"`
-	FavorVideos   []*Video    `json:"-" gorm:"many2many:user_favor_videos;"`
-	Comments      []*Comment  `json:"-"`
-	Messages      []*Message  `json:"-"`
+	Id              int64       `json:"id" gorm:"id,omitempty"`
+	Name            string      `json:"name" gorm:"name,omitempty"`
+	FollowCount     int64       `json:"follow_count" gorm:"follow_count,omitempty"`
+	FollowerCount   int64       `json:"follower_count" gorm:"follower_count,omitempty"`
+	IsFollow        bool        `json:"is_follow" gorm:"is_follow,omitempty"`
+	Avatar          string      `json:"avatar,omitempty" gorm:"avatar,omitempty"`
+	BackgroundImage string      `json:"background_image,omitempty" gorm:"background_image,omitempty"`
+	Signature       string      `json:"signature,omitempty" gorm:"signature,omitempty"`
+	TotalFavorited  int64       `json:"total_favorited,omitempty" gorm:"total_favorited,omitempty"`
+	WorkCount       int64       `json:"work_count" gorm:"work_count,omitempty"`
+	FavoriteCount   int64       `json:"favorite_count" gorm:"favorite_count,omitempty"`
+	User            *User       `json:"-"`
+	Videos          []*Video    `json:"-"`
+	Follows         []*UserInfo `json:"-" gorm:"many2many:user_relations;"`
+	FavorVideos     []*Video    `json:"-" gorm:"many2many:user_favor_videos;"`
+	Comments        []*Comment  `json:"-"`
+	Messages        []*Message  `json:"-"`
 }
 
 type UserInfoDao struct {
@@ -44,12 +49,35 @@ func (u *UserInfoDao) QueryUserInfoById(id int64, userinfo *UserInfo) error {
 	if userinfo == nil {
 		return errors.New("QueryUserInfoById" + errortype.PointerIsNilErr)
 	}
-	DB.Where("id = ?", id).Select([]string{"id", "name", "follow_count", "is_follow"}).First(userinfo)
+	DB.Where("id = ?", id).Select([]string{
+		"id",
+		"name",
+		"follow_count",
+		"follower_count",
+		"avatar",
+		"background_image",
+		"signature",
+		"total_favorited",
+		"work_count",
+		"favorite_count",
+		"is_follow"}).First(userinfo)
 	if userinfo.Id == 0 {
 		return errors.New(errortype.UserNoExistErr)
 	}
 	return nil
 }
+
+// QueryUserInfoById 查询用户
+//func (u *UserInfoDao) QueryUserInfoById(id int64, userinfo *UserInfo) error {
+//	if userinfo == nil {
+//		return errors.New("QueryUserInfoById" + errortype.PointerIsNilErr)
+//	}
+//	DB.Where("id = ?", id).Select([]string{"id", "name", "follow_count", "is_follow"}).First(userinfo)
+//	if userinfo.Id == 0 {
+//		return errors.New(errortype.UserNoExistErr)
+//	}
+//	return nil
+//}
 
 // AddUserInfo 将UserInfo指针信息写入数据库
 func (u *UserInfoDao) AddUserInfo(userinfo *UserInfo) error {

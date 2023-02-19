@@ -56,6 +56,8 @@ func InitRouters() *gin.Engine {
 	BG.GET("/relation/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFriendsController)
 
 	//消息接口
+	//发送消息
+	BG.POST("/message/action/", middleware.Permission(), message.PostMessageController)
 	//消息记录
 	BG.GET("/message/chat/", middleware.Permission(), message.QueryMessageListController)
 

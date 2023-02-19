@@ -64,7 +64,6 @@ func (q *QueryFriendsFlow) GetData() error {
 		msg, msgType, _ := GetLatestMsgByUid(q.uid, u.Id)
 		friendList[i] = &models.Friend{
 			UserInfo: *u,
-			Avatar:   GetAvatarUrl(i),
 			Message:  msg,
 			MsgType:  msgType,
 		}
