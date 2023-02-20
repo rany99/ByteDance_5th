@@ -2,6 +2,7 @@ package user
 
 import (
 	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/user"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,24 +13,17 @@ type LoginResponse struct {
 	*user.LoginResponse
 }
 
-type ProxyUser struct {
-	Username string `form:"username"  validate:"required"`
-	Password string `form:"password"  validate:"required"`
-}
-
 func LoginController(ctx *gin.Context) {
 
-	var p ProxyUser
-
-	err := ctx.ShouldBindQuery(&p)
-
-	err = common.Validate.Struct(p)
-	if err != nil {
-		LoginFailed(ctx, err.Error())
+	username := ctx.Query("username")
+	rawPassword, _ := ctx.Get("password")
+	password, ok := rawPassword.(string)
+	if !ok {
+		LoginFailed(ctx, errortype.ParsePasswordErr)
 		return
 	}
 
-	userLoginResponse, err := user.QueryUserLogin(p.Username, p.Password)
+	userLoginResponse, err := user.QueryUserLogin(username, password)
 
 	//用户不存在返回对应的错误
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 
 type PostCommentResponse struct {
 	common.CommonResponse
-	*comment.PostCommentResponse
+	*comment.CommentResponse
 }
 
 // ProxyPostComment 代理层
@@ -42,7 +42,7 @@ func PostCommentController(ctx *gin.Context) {
 	}
 
 	// 传入service层
-	var postComment *comment.PostCommentResponse
+	var postComment *comment.CommentResponse
 	postComment, err = comment.PostComment(uid, p.VideoId, p.CommentId, p.ActionType, p.CommentText)
 	if err != nil {
 		PostCommentFailed(ctx, err.Error())
@@ -63,9 +63,9 @@ func PostCommentFailed(ctx *gin.Context, msg string) {
 }
 
 // PostCommentSucceed 成功
-func PostCommentSucceed(ctx *gin.Context, comment *comment.PostCommentResponse) {
+func PostCommentSucceed(ctx *gin.Context, comment *comment.CommentResponse) {
 	ctx.JSON(http.StatusOK, PostCommentResponse{
-		CommonResponse:      common.CommonResponse{StatusCode: 0},
-		PostCommentResponse: comment,
+		CommonResponse:  common.CommonResponse{StatusCode: 0},
+		CommentResponse: comment,
 	})
 }

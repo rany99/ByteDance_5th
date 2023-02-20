@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-type QueryCommentListResponse struct {
+type CommentsResponse struct {
 	Comments []*models.Comment `json:"comment_list"`
 }
 
@@ -14,10 +14,10 @@ type QueryCommentListFlow struct {
 	//uid         int64
 	vid         int64
 	comments    []*models.Comment
-	commentList *QueryCommentListResponse
+	commentList *CommentsResponse
 }
 
-func QueryCommentList(vid int64) (*QueryCommentListResponse, error) {
+func QueryCommentList(vid int64) (*CommentsResponse, error) {
 	return NewQueryCommentListFlow(vid).Operation()
 }
 
@@ -28,7 +28,7 @@ func NewQueryCommentListFlow(vid int64) *QueryCommentListFlow {
 	}
 }
 
-func (q *QueryCommentListFlow) Operation() (*QueryCommentListResponse, error) {
+func (q *QueryCommentListFlow) Operation() (*CommentsResponse, error) {
 	if err := q.CheckJson(); err != nil {
 		//log.Println("QueryCommentListFlow:checkJSON失败")
 		return nil, err
@@ -67,7 +67,7 @@ func (q *QueryCommentListFlow) GetData() error {
 }
 
 func (q *QueryCommentListFlow) PackData() error {
-	q.commentList = &QueryCommentListResponse{Comments: q.comments}
+	q.commentList = &CommentsResponse{Comments: q.comments}
 	return nil
 }
 

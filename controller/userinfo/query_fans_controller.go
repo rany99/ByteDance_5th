@@ -4,7 +4,6 @@ import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/userinfo"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,67 +13,48 @@ type QueryFansResponse struct {
 	*userinfo.FansResponse
 }
 
-type ProxyQueryFansController struct {
-	uid int64
-	*userinfo.FansResponse
-	*gin.Context
+type ProxyQueryFans struct {
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
 }
 
 func QueryFansController(ctx *gin.Context) {
-	NewProxyQueryFansController(ctx).Operation()
-}
 
-func NewProxyQueryFansController(ctx *gin.Context) *ProxyQueryFansController {
-	return &ProxyQueryFansController{Context: ctx}
-}
+	// 接收参数
+	var p ProxyQueryFans
+	err := ctx.ShouldBindQuery(&p)
 
-func (p *ProxyQueryFansController) Operation() {
-	if err := p.ParseJSON(); err != nil {
-		p.SendFailed(err.Error())
+	// 参数校验
+	if err = common.Validate.Struct(p); err != nil {
+		QueryFansFailed(ctx, errortype.DataNotMatchErr)
 		return
 	}
-	if err := p.GetData(); err != nil {
-		p.SendFailed(err.Error())
-		return
-	}
-	p.SendSucceed("查询成功")
-}
 
-func (p *ProxyQueryFansController) ParseJSON() error {
-	rawUid, _ := p.Get("user_id")
-	uid, ok := rawUid.(int64)
-	if !ok {
-		return errors.New(errortype.ParseUserIdErr)
-	}
-	p.uid = uid
-	return nil
-}
-
-func (p *ProxyQueryFansController) GetData() error {
-	fans, err := userinfo.QueryFans(p.uid)
+	// 调用service层
+	fansResponse, err := userinfo.QueryFans(p.UserId)
 	if err != nil {
-		return err
+		QueryFansFailed(ctx, err.Error())
+		return
 	}
-	p.FansResponse = fans
-	return nil
+
+	// 封装返回
+	QueryFansSucceed(ctx, fansResponse)
 }
 
-func (p *ProxyQueryFansController) SendSucceed(msg string) {
-	p.JSON(http.StatusOK, QueryFansResponse{
-		CommonResponse: common.CommonResponse{
-			StatusCode: 0,
-			StatusMsg:  msg,
-		},
-		FansResponse: p.FansResponse,
-	})
-}
-
-func (p *ProxyQueryFansController) SendFailed(msg string) {
-	p.JSON(http.StatusOK, QueryFansResponse{
+func QueryFansFailed(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusOK, QueryFansResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},
-		FansResponse: nil,
+	})
+}
+
+func QueryFansSucceed(ctx *gin.Context, fansResponse *userinfo.FansResponse) {
+	ctx.JSON(http.StatusOK, QueryFansResponse{
+		CommonResponse: common.CommonResponse{
+			StatusCode: 0,
+		},
+		FansResponse: fansResponse,
 	})
 }

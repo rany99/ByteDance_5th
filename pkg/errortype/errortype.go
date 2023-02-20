@@ -2,6 +2,7 @@ package errortype
 
 // 通用错误信息
 const (
+	DataNotMatchErr    string = "数据格式错误"
 	ParseUserIdErr     string = "user_id解析错误"
 	ParseVideoIdErr    string = "video_id解析错误"
 	ParseActionTypeErr string = "action_type解析错误"

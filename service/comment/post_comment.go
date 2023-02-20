@@ -2,11 +2,12 @@ package comment
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/pkg/constantval"
 	"ByteDance_5th/pkg/errortype"
 	"errors"
 )
 
-type PostCommentResponse struct {
+type CommentResponse struct {
 	CommentList *models.Comment `json:"comment"`
 }
 
@@ -17,11 +18,11 @@ type PostCommentFlow struct {
 	actionType  int64
 	commentText string
 	comment     *models.Comment
-	*PostCommentResponse
+	*CommentResponse
 }
 
 // PostComment 发布评论
-func PostComment(uid, vid, commentId, actionType int64, commentText string) (*PostCommentResponse, error) {
+func PostComment(uid, vid, commentId, actionType int64, commentText string) (*CommentResponse, error) {
 	return NewPostCommentFlow(uid, vid, commentId, actionType, commentText).Operation()
 }
 
@@ -29,7 +30,7 @@ func NewPostCommentFlow(uid int64, vid int64, commentId int64, actionType int64,
 	return &PostCommentFlow{uid: uid, vid: vid, commentId: commentId, actionType: actionType, commentText: commentText}
 }
 
-func (p *PostCommentFlow) Operation() (*PostCommentResponse, error) {
+func (p *PostCommentFlow) Operation() (*CommentResponse, error) {
 	if err := p.CheckJSON(); err != nil {
 		return nil, err
 	}
@@ -42,10 +43,10 @@ func (p *PostCommentFlow) Operation() (*PostCommentResponse, error) {
 	}
 	//log.Println("Do PackData:", p.comment.Content)
 	//log.Println(p.CResponse.CRComment.Content)
-	return p.PostCommentResponse, nil
+	return p.CommentResponse, nil
 }
 
-// CheckJson 检查Json传入数据是否正确
+// CheckJSON 检查Json传入数据是否正确
 func (p *PostCommentFlow) CheckJSON() error {
 	if err := p.CheckUid(); err != nil {
 		return err
@@ -77,24 +78,24 @@ func (p *PostCommentFlow) CheckVid() error {
 
 // CheckActionType 检查ActionType是否合法
 func (p *PostCommentFlow) CheckActionType() error {
-	if p.actionType == 1 || p.actionType == 2 {
-		return nil
+	if p.actionType == constantval.CreateCommentActionType && p.commentText == "" {
+		return errors.New(errortype.CommentEmptyErr)
 	}
-	return errors.New(errortype.PostCommentActionTypeErr)
+	return nil
 }
 
 // GetData 获取数据
 func (p *PostCommentFlow) GetData() error {
 	var err error
 	switch p.actionType {
-	case 1: //创建
+	case constantval.CreateCommentActionType: //创建
 		p.comment, err = p.CreateComment()
-	case 2: //删除
+	case constantval.DeleteCommentActionType: //删除
 		p.comment, err = p.DeleteComment()
 	default:
 		return errors.New(errortype.PostCommentActionTypeErr)
 	}
-	//log.Println("GetData:", p.comment.Content)
+
 	return err
 }
 
@@ -132,7 +133,7 @@ func (p *PostCommentFlow) PackData() error {
 	_ = models.NewUserInfoDAO().QueryUserInfoById(p.comment.UserInfoId, &userInfo)
 	p.comment.User = userInfo
 	_ = FillComment(p.comment)
-	p.PostCommentResponse = &PostCommentResponse{CommentList: p.comment}
+	p.CommentResponse = &CommentResponse{CommentList: p.comment}
 	return nil
 }
 

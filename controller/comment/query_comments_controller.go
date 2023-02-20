@@ -11,7 +11,7 @@ import (
 
 type QueryCommentListResponse struct {
 	common.CommonResponse
-	*comment.QueryCommentListResponse
+	*comment.CommentsResponse
 }
 
 type ProxyQueryCommentList struct {
@@ -39,13 +39,13 @@ func QueryCommentListController(ctx *gin.Context) {
 }
 
 // QueryCommentListSucceed 成功
-func QueryCommentListSucceed(ctx *gin.Context, commentList *comment.QueryCommentListResponse) {
+func QueryCommentListSucceed(ctx *gin.Context, commentList *comment.CommentsResponse) {
 	ctx.JSON(http.StatusOK, QueryCommentListResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 			StatusMsg:  "",
 		},
-		QueryCommentListResponse: commentList,
+		CommentsResponse: commentList,
 	})
 }
 
