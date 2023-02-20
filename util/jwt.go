@@ -1,7 +1,7 @@
 package util
 
 import (
-	"ByteDance_5th/cmd/models"
+	"ByteDance_5th/models"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
