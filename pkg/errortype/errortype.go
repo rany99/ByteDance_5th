@@ -40,7 +40,6 @@ const (
 	PostFavorActionTypeErr   string = "只能进行1:点赞;2:取消操作"
 	PostCommentActionTypeErr string = "只能进行1:评论;2:删除评论"
 	PostFollowActionTypeErr  string = "只能进行1:关注;2:取消关注"
-	PostMsgActionTypeErr     string = "只能进行1:发送消息"
 )
 
 // 投稿错误信息
@@ -78,7 +77,9 @@ const (
 	FavorCountZeroErr   string = "点赞数目为0"
 )
 
+// 消息收发错误
 const (
+	EmptyMsgErr           string = "输入消息为空"
 	ParseMsgFromUserIdErr string = "from_user_id解析错误"
 	ParseMsgToUserIdErr   string = "to_user_id解析错误"
 	FromUserNoExistErr    string = "消息发出者不存在"

@@ -1,0 +1,57 @@
+package video
+
+import (
+	"ByteDance_5th/cmd/service/video"
+	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/errortype"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+type QueryPublishListResponse struct {
+	common.CommonResponse
+	*video.PublishListResponse
+}
+
+// QueryPublishListController Controller层
+func QueryPublishListController(ctx *gin.Context) {
+
+	// 解析uid
+	rawId, _ := ctx.Get("user_id")
+	uid, ok := rawId.(int64)
+	if !ok {
+		QueryPublishListFailed(ctx, errortype.ParseUserIdErr)
+		return
+	}
+
+	// 调用service层
+	publishListResponse, err := video.QueryPublishListByUid(uid)
+	if err != nil {
+		QueryPublishListFailed(ctx, err.Error())
+		return
+	}
+
+	// 封装数据
+	QueryPublishListSucceed(ctx, publishListResponse)
+}
+
+// QueryPublishListSucceed 获取发布列表成功
+func QueryPublishListSucceed(ctx *gin.Context, publishListResponse *video.PublishListResponse) {
+	ctx.JSON(http.StatusOK, QueryPublishListResponse{
+		CommonResponse: common.CommonResponse{
+			StatusCode: 0,
+		},
+		PublishListResponse: publishListResponse,
+	})
+}
+
+// QueryPublishListFailed 获取发布列表失败
+func QueryPublishListFailed(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusOK, QueryPublishListResponse{
+		CommonResponse: common.CommonResponse{
+			StatusCode: 1,
+			StatusMsg:  msg,
+		},
+		PublishListResponse: nil,
+	})
+}
