@@ -2,11 +2,8 @@ package userinfo
 
 import (
 	"ByteDance_5th/models"
-	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/util/cache"
-	"fmt"
 	"log"
-	"strconv"
 )
 
 type FriendsResponse struct {
@@ -77,14 +74,6 @@ func (q *QueryFriendsFlow) GetData() error {
 func (q *QueryFriendsFlow) PackData() error {
 	q.FriendsResponse = &FriendsResponse{FriendList: q.userList}
 	return nil
-}
-
-// GetAvatarUrl 生成头像url
-// 由于本次客户端中并没有给出相应的用于上传头像的接口，因此在public/avatar文件中预存了16张图片用作头像
-func GetAvatarUrl(i int) string {
-	fileName := strconv.Itoa(i%models.AvatarCnt) + ".jpg"
-	var url string = fmt.Sprintf("http://%s:%d/static/avatar/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
-	return url
 }
 
 // GetLatestMsgByUid 通过user_id 返回最新一条聊天记录的内容以及聊天记录的类型

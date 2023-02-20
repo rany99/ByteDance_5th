@@ -5,7 +5,6 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/comment"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -20,16 +19,18 @@ type ProxyQueryCommentList struct {
 
 func QueryCommentListController(ctx *gin.Context) {
 
+	// 绑定参数
 	var p ProxyQueryCommentList
 	err := ctx.ShouldBindQuery(&p)
 
+	// 校验参数
 	err = common.Validate.Struct(p)
-	log.Println("p", p.VideoId)
 	if err != nil {
 		QueryCommentListFailed(ctx, errortype.ParseVideoIdErr)
 		return
 	}
 
+	// 调用service层
 	commentList, err := comment.QueryCommentList(p.VideoId)
 	if err != nil {
 		QueryCommentListFailed(ctx, err.Error())

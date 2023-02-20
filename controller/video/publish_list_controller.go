@@ -8,61 +8,50 @@ import (
 	"net/http"
 )
 
-type ListResponse struct {
+type QueryPublishListResponse struct {
 	common.CommonResponse
-	*video.PublishList
+	*video.PublishListResponse
 }
 
-// ProxyQueryVideoList 防火层
-type ProxyQueryVideoList struct {
-	ctx *gin.Context
-}
+// QueryPublishListController Controller层
+func QueryPublishListController(ctx *gin.Context) {
 
-func NewProxyQueryVideoList(ctx *gin.Context) *ProxyQueryVideoList {
-	return &ProxyQueryVideoList{ctx: ctx}
-}
-
-// QueryVideoListController Controller层
-func QueryVideoListController(ctx *gin.Context) {
-	p := NewProxyQueryVideoList(ctx)
+	// 解析uid
 	rawId, _ := ctx.Get("user_id")
 	uid, ok := rawId.(int64)
 	if !ok {
-		//log.Println(errortype.ParseUserIdErr)
-		p.SendFailed(errortype.ParseUserIdErr)
+		QueryPublishListFailed(ctx, errortype.ParseUserIdErr)
+		return
 	}
-	if err := p.DoQueryVideoListByUid(uid); err != nil {
-		p.SendFailed(err.Error())
-	}
-}
 
-// DoQueryVideoListByUid 使用uid进行查询
-func (p *ProxyQueryVideoList) DoQueryVideoListByUid(uid int64) error {
-	videoList, err := video.QueryPublishListByUid(uid)
+	// 调用service层
+	publishListResponse, err := video.QueryPublishListByUid(uid)
 	if err != nil {
-		return err
+		QueryPublishListFailed(ctx, err.Error())
+		return
 	}
-	p.SendSucceed(videoList)
-	return nil
+
+	// 封装数据
+	QueryPublishListSucceed(ctx, publishListResponse)
 }
 
-// SendSucceed 获取成功
-func (p *ProxyQueryVideoList) SendSucceed(list *video.PublishList) {
-	p.ctx.JSON(http.StatusOK, ListResponse{
+// QueryPublishListSucceed 获取发布列表成功
+func QueryPublishListSucceed(ctx *gin.Context, publishListResponse *video.PublishListResponse) {
+	ctx.JSON(http.StatusOK, QueryPublishListResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
 		},
-		PublishList: list,
+		PublishListResponse: publishListResponse,
 	})
 }
 
-// SendFailed 获取失败
-func (p *ProxyQueryVideoList) SendFailed(msg string) {
-	p.ctx.JSON(http.StatusOK, ListResponse{
+// QueryPublishListFailed 获取发布列表失败
+func QueryPublishListFailed(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusOK, QueryPublishListResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},
-		PublishList: nil,
+		PublishListResponse: nil,
 	})
 }

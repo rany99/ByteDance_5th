@@ -4,62 +4,50 @@ import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-type UserResponse struct {
+type QueryUserInfoResponse struct {
 	common.CommonResponse
-	UserInfo *models.UserInfo `json:"user"`
+	*models.UserInfo `json:"user"`
 }
 
-type ProxyUserInfo struct {
-	c *gin.Context
-}
+func QueryUserInfoController(ctx *gin.Context) {
 
-func NewProxyUserInfo(c *gin.Context) *ProxyUserInfo {
-	return &ProxyUserInfo{c: c}
-}
-
-func InfoController(ctx *gin.Context) {
-	p := NewProxyUserInfo(ctx)
-	raw, ok := ctx.Get("user_id")
+	// 解析uid
+	rawUid, _ := ctx.Get("user_id")
+	uid, ok := rawUid.(int64)
 	if !ok {
-		p.SendFailed(errortype.ParseUserIdErr)
-	}
-	err := p.DoQueryUserInfoByUserId(raw)
-	if err != nil {
-		p.SendFailed(err.Error())
-	}
-}
-
-func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId interface{}) error {
-	userId, ok := rawId.(int64)
-	if !ok {
-		return errors.New(errortype.ParseUserIdErr)
+		QueryUserInfoFailed(ctx, errortype.ParseUserIdErr)
+		return
 	}
 
+	// 调用models层
 	userinfoDAO := models.NewUserInfoDAO()
-
 	var userInfo models.UserInfo
-	err := userinfoDAO.QueryUserInfoById(userId, &userInfo)
+	err := userinfoDAO.QueryUserInfoById(uid, &userInfo)
 	if err != nil {
-		return err
+		QueryUserInfoFailed(ctx, err.Error())
+		return
 	}
-	p.SendSucceed(&userInfo)
-	return nil
+
+	QueryUserInfoSucceed(ctx, &userInfo)
 }
 
-func (p *ProxyUserInfo) SendFailed(msg string) {
-	p.c.JSON(http.StatusOK, UserResponse{
-		CommonResponse: common.CommonResponse{StatusCode: 1, StatusMsg: msg},
+// QueryUserInfoFailed 查询失败
+func QueryUserInfoFailed(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusOK, QueryUserInfoResponse{
+		CommonResponse: common.CommonResponse{
+			StatusCode: 1,
+			StatusMsg:  msg},
 	})
 }
 
-func (p *ProxyUserInfo) SendSucceed(user *models.UserInfo) {
-	p.c.JSON(http.StatusOK, UserResponse{
+// QueryUserInfoSucceed 查询成功
+func QueryUserInfoSucceed(ctx *gin.Context, userInfo *models.UserInfo) {
+	ctx.JSON(http.StatusOK, QueryUserInfoResponse{
 		CommonResponse: common.CommonResponse{StatusCode: 0},
-		UserInfo:       user,
+		UserInfo:       userInfo,
 	})
 }

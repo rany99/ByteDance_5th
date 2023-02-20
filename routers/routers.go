@@ -23,7 +23,7 @@ func InitRouters() *gin.Engine {
 
 	//基础接口
 	//视频流接口
-	BaseGroup.GET("/feed/", video.FeedListController)
+	BaseGroup.GET("/feed/", video.QueryFeedListController)
 	userGroup := BaseGroup.Group("/user")
 	{
 		//用户注册
@@ -31,14 +31,14 @@ func InitRouters() *gin.Engine {
 		//用户登录
 		userGroup.POST("/login/", middleware.ShaMiddleWare(), user.LoginController)
 		//用户信息
-		userGroup.GET("/", middleware.JwtMiddleware(), userinfo.InfoController)
+		userGroup.GET("/", middleware.JwtMiddleware(), userinfo.QueryUserInfoController)
 	}
 	publish := BaseGroup.Group("/publish")
 	{
 		//投稿接口
-		publish.POST("/action/", middleware.JwtMiddleware(), video.PublishHandler)
+		publish.POST("/action/", middleware.JwtMiddleware(), video.PublishController)
 		//发布列表
-		publish.GET("/list/", middleware.NoAuthToGetUserId(), video.QueryVideoListController)
+		publish.GET("/list/", middleware.NoAuthToGetUserId(), video.QueryPublishListController)
 	}
 
 	//互动接口

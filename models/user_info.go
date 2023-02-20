@@ -152,12 +152,12 @@ func (u *UserInfoDao) GetFriendsById(id int64, userList *[]*UserInfo) error {
 	//for _, f := range followList {
 	//	vis[f] = true
 	//}
-	//var friends []*UserInfo
+	//var friends []*userInfoResponse
 	//cnt := 0
 	//for _, f := range fansList {
 	//	if _, ok := vis[f]; ok {
 	//		log.Println(f)
-	//		friends = append(friends, &UserInfo{})
+	//		friends = append(friends, &userInfoResponse{})
 	//		_ = u.QueryUserInfoById(f, friends[cnt])
 	//		cnt++
 	//	}

@@ -44,7 +44,7 @@ func (q *QueryFansFlow) CheckJson() error {
 }
 
 func (q *QueryFansFlow) GetData() error {
-	//var userList []*models.UserInfo
+	//var userList []*models.userInfoResponse
 	if err := models.NewUserInfoDAO().GetFansById(q.uid, &q.userList); err != nil {
 		return err
 	}

@@ -10,7 +10,7 @@ import (
 
 const Limit int = 30
 
-type FeedList struct {
+type FeedListResponse struct {
 	List     []*models.Video `json:"video_list,omitempty"`
 	NextTime int64           `json:"next_time,omitempty"`
 }
@@ -20,10 +20,10 @@ type QueryFeedListFlow struct {
 	latestTime time.Time       //申请时间
 	videos     []*models.Video //返回视频列表，长度最长为Limit = 30
 	nextTime   int64           //下一次申请时间
-	feedVideo  *FeedList
+	feedVideo  *FeedListResponse
 }
 
-func QueryFeedList(userid int64, latestTime time.Time) (*FeedList, error) {
+func QueryFeedList(userid int64, latestTime time.Time) (*FeedListResponse, error) {
 	return NewQueryFeedListFlow(userid, latestTime).Do()
 }
 
@@ -34,7 +34,7 @@ func NewQueryFeedListFlow(userId int64, latestTime time.Time) *QueryFeedListFlow
 	}
 }
 
-func (q *QueryFeedListFlow) Do() (list *FeedList, err error) {
+func (q *QueryFeedListFlow) Do() (list *FeedListResponse, err error) {
 	q.IsAlreadyLogin()
 
 	if err := q.GetData(); err != nil {
@@ -75,7 +75,7 @@ func (q *QueryFeedListFlow) GetData() error {
 
 // PackData 封装数据
 func (q *QueryFeedListFlow) PackData() error {
-	q.feedVideo = &FeedList{
+	q.feedVideo = &FeedListResponse{
 		List:     q.videos,
 		NextTime: q.nextTime,
 	}

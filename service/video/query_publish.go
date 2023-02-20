@@ -7,22 +7,22 @@ import (
 	"errors"
 )
 
-type PublishList struct {
+type PublishListResponse struct {
 	Videos []*models.Video `json:"video_list,omitempty"`
 }
 
 type QueryPublishListByUidFlow struct {
 	userId    int64 //当前用户id
 	videos    []*models.Video
-	videoList *PublishList
+	videoList *PublishListResponse
 }
 
 // QueryPublishListByUid 通过UID返回
-func QueryPublishListByUid(userid int64) (*PublishList, error) {
+func QueryPublishListByUid(userid int64) (*PublishListResponse, error) {
 	return NewQueryUserVideoListByUid(userid).Operation()
 }
 
-func (q *QueryPublishListByUidFlow) Operation() (*PublishList, error) {
+func (q *QueryPublishListByUidFlow) Operation() (*PublishListResponse, error) {
 	if err := q.IsUidExist(); err != nil {
 		return nil, errors.New(errortype.UserNoExistErr)
 	}
@@ -55,6 +55,6 @@ func (q *QueryPublishListByUidFlow) PackData() error {
 		q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
 	}
 	//log.Println("PackData:", len(q.videos))
-	q.videoList = &PublishList{Videos: q.videos}
+	q.videoList = &PublishListResponse{Videos: q.videos}
 	return nil
 }
