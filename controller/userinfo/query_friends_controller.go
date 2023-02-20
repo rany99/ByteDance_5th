@@ -4,7 +4,6 @@ import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/userinfo"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,69 +13,52 @@ type QueryFriendsResponse struct {
 	*userinfo.FriendsResponse
 }
 
-type ProxyQueryFriendsResponse struct {
-	uid int64
-	*userinfo.FriendsResponse
-	*gin.Context
+type ProxyQueryFriends struct {
+	UserId int64 `form:"user_id" validate:"required,numeric,min=1"`
+	//Token  string `form:"token"   validate:"required,jwt"`
 }
 
 func QueryFriendsController(ctx *gin.Context) {
-	NewProxyQueryFriendsResponse(ctx).Operation()
-}
 
-func NewProxyQueryFriendsResponse(ctx *gin.Context) *ProxyQueryFriendsResponse {
-	return &ProxyQueryFriendsResponse{
-		Context: ctx,
-	}
-}
+	// 绑定参数
+	var p ProxyQueryFollows
+	err := ctx.ShouldBindQuery(&p)
 
-func (p *ProxyQueryFriendsResponse) Operation() {
-	if err := p.ParseJSON(); err != nil {
-		p.SendFailed(err.Error())
-		return
-	}
-	if err := p.GetData(); err != nil {
-		p.SendFailed(err.Error())
-		return
-	}
-	p.SendSucceed("查询成功")
-}
-
-func (p *ProxyQueryFriendsResponse) ParseJSON() error {
-	rawUid, _ := p.Get("user_id")
+	// 解析uid
+	rawUid, _ := ctx.Get("user_id")
 	uid, ok := rawUid.(int64)
 	if !ok {
-		return errors.New(errortype.ParseUserIdErr)
+		QueryFriendsFailed(ctx, errortype.ParseUserIdErr)
+		return
 	}
-	p.uid = uid
-	return nil
-}
 
-func (p *ProxyQueryFriendsResponse) GetData() error {
-	friends, err := userinfo.QueryFriends(p.uid)
+	// 调用service层
+	friendsResponse, err := userinfo.QueryFriends(uid)
 	if err != nil {
-		return err
+		QueryFollowsFailed(ctx, err.Error())
+		return
 	}
-	p.FriendsResponse = friends
-	return nil
+
+	// 封装数据
+	QueryFriendsSucceed(ctx, friendsResponse)
 }
 
-func (p *ProxyQueryFriendsResponse) SendFailed(msg string) {
-	p.JSON(http.StatusOK, QueryFriendsResponse{
+// QueryFriendsFailed 查询失败
+func QueryFriendsFailed(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusOK, QueryFriendsResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 1,
 			StatusMsg:  msg,
 		},
-		FriendsResponse: nil,
 	})
 }
 
-func (p *ProxyQueryFriendsResponse) SendSucceed(msg string) {
-	p.JSON(http.StatusOK, QueryFriendsResponse{
+// QueryFriendsSucceed 查询成功
+func QueryFriendsSucceed(ctx *gin.Context, friendResponse *userinfo.FriendsResponse) {
+	ctx.JSON(http.StatusOK, QueryFriendsResponse{
 		CommonResponse: common.CommonResponse{
 			StatusCode: 0,
-			StatusMsg:  msg,
 		},
-		FriendsResponse: p.FriendsResponse,
+		FriendsResponse: friendResponse,
 	})
 }

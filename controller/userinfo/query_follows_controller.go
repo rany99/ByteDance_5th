@@ -4,76 +4,56 @@ import (
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/userinfo"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-type FollowsResponse struct {
+type QueryFollowsResponse struct {
 	common.CommonResponse
-	*userinfo.Follows
+	*userinfo.FollowsResponse
 }
 
 type ProxyQueryFollows struct {
-	uid int64
-	*userinfo.Follows
-	*gin.Context
+	UserId int64 `form:"user_id" validate:"required,numeric,min=1"`
+	//Token  string `form:"token"   validate:"required,jwt"`
 }
 
 func QueryFollowsController(ctx *gin.Context) {
-	NewProxyQueryFollows(ctx).Operation()
-}
 
-func NewProxyQueryFollows(ctx *gin.Context) *ProxyQueryFollows {
-	return &ProxyQueryFollows{
-		Context: ctx,
-	}
-}
+	// 接收参数
+	var p ProxyQueryFollows
+	err := ctx.ShouldBindQuery(&p)
 
-func (p *ProxyQueryFollows) Operation() {
-	if err := p.ParseJSON(); err != nil {
-		p.SendFailed(err.Error())
+	// 参数校验
+	err = common.Validate.Struct(p)
+	if err != nil {
+		QueryFollowsFailed(ctx, errortype.DataNotMatchErr)
 		return
 	}
-	if err := p.GetData(); err != nil {
-		p.SendFailed(err.Error())
+
+	// 调用service层
+	followsResponse, err := userinfo.QueryFollowList(p.UserId)
+	if err != nil {
+		QueryFollowsFailed(ctx, err.Error())
 		return
 	}
-	p.SendSucceed("查询成功")
+
+	//查询成功
+	QueryFollowsSucceed(ctx, followsResponse)
 }
 
-func (p *ProxyQueryFollows) SendFailed(msg string) {
-	p.JSON(http.StatusOK, common.CommonResponse{
+func QueryFollowsSucceed(ctx *gin.Context, followsResponse *userinfo.FollowsResponse) {
+	ctx.JSON(http.StatusOK, QueryFollowsResponse{
+		CommonResponse: common.CommonResponse{
+			StatusCode: 0,
+		},
+		FollowsResponse: followsResponse,
+	})
+}
+
+func QueryFollowsFailed(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 1,
 		StatusMsg:  msg,
 	})
-}
-
-func (p *ProxyQueryFollows) SendSucceed(msg string) {
-	p.JSON(http.StatusOK, FollowsResponse{
-		CommonResponse: common.CommonResponse{
-			StatusCode: 0,
-			StatusMsg:  msg,
-		},
-		Follows: p.Follows,
-	})
-}
-
-func (p *ProxyQueryFollows) ParseJSON() error {
-	rawUid, _ := p.Get("user_id")
-	uid, ok := rawUid.(int64)
-	if !ok {
-		return errors.New(errortype.ParseUserIdErr)
-	}
-	p.uid = uid
-	return nil
-}
-
-func (p *ProxyQueryFollows) GetData() error {
-	list, err := userinfo.QueryFollowList(p.uid)
-	if err != nil {
-		return err
-	}
-	p.Follows = list
-	return nil
 }

@@ -4,17 +4,17 @@ import (
 	"ByteDance_5th/models"
 )
 
-type Follows struct {
+type FollowsResponse struct {
 	UserList []*models.UserInfo `json:"user_list"`
 }
 
 type QueryFollowsFlow struct {
 	uid      int64
 	userList []*models.UserInfo
-	*Follows
+	*FollowsResponse
 }
 
-func QueryFollowList(uid int64) (*Follows, error) {
+func QueryFollowList(uid int64) (*FollowsResponse, error) {
 	return NewQueryFollowsFlow(uid).Operation()
 }
 
@@ -24,7 +24,7 @@ func NewQueryFollowsFlow(uid int64) *QueryFollowsFlow {
 	}
 }
 
-func (q *QueryFollowsFlow) Operation() (*Follows, error) {
+func (q *QueryFollowsFlow) Operation() (*FollowsResponse, error) {
 	if err := q.CheckJson(); err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (q *QueryFollowsFlow) Operation() (*Follows, error) {
 	if err := q.PackData(); err != nil {
 		return nil, err
 	}
-	return q.Follows, nil
+	return q.FollowsResponse, nil
 }
 
 func (q *QueryFollowsFlow) CheckJson() error {
@@ -50,7 +50,7 @@ func (q *QueryFollowsFlow) GetData() error {
 	if err := models.NewUserInfoDAO().GetFollowsById(q.uid, &userList); err != nil {
 		return err
 	}
-	for i, _ := range userList {
+	for i := range userList {
 		userList[i].IsFollow = true
 	}
 	//log.Println("GetData:", len(userList))
@@ -61,6 +61,6 @@ func (q *QueryFollowsFlow) GetData() error {
 
 func (q *QueryFollowsFlow) PackData() error {
 	//log.Println("QueryFollowsFlow: PackData", len(q.userList))
-	q.Follows = &Follows{UserList: q.userList}
+	q.FollowsResponse = &FollowsResponse{UserList: q.userList}
 	return nil
 }
