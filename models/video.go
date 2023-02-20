@@ -114,6 +114,7 @@ func (v *VideoDao) FavoriteCountAddOneByVideoId(uid int64, vid int64) error {
 		if err := tx.Exec("INSERT INTO `user_favor_videos` (`user_info_id`,`video_id`) VALUES (?,?)", uid, vid).Error; err != nil {
 			return err
 		}
+		log.Println("已经执行")
 		return nil
 	})
 }
@@ -121,10 +122,10 @@ func (v *VideoDao) FavoriteCountAddOneByVideoId(uid int64, vid int64) error {
 // FavoriteCountSubOneByVideoId 根据视频ID和用户ID将视频点赞数减一，并从user_favor_videos删除
 func (v *VideoDao) FavoriteCountSubOneByVideoId(uid int64, vid int64) error {
 	return DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec("UPDATE videos SET favorite_count = favorite_count + 1 WHERE id = ? AND favorite_count > 0", vid).Error; err != nil {
+		if err := tx.Exec("UPDATE videos SET favorite_count = favorite_count - 1 WHERE id = ? AND favorite_count > 0", vid).Error; err != nil {
 			return err
 		}
-		if err := tx.Exec("DELETE FROM `user_favor_videos` (`user_info_id`,`video_id`) VALUES (?,?)", uid, vid).Error; err != nil {
+		if err := tx.Exec("DELETE FROM `user_favor_videos`  WHERE `user_info_id` = ? AND `video_id` = ?", uid, vid).Error; err != nil {
 			return err
 		}
 		return nil

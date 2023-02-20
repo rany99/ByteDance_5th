@@ -7,17 +7,9 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// ProxyCache 缓存层
-type ProxyCache struct {
-}
+var ctx = context.Background()
 
-// 代理层
-var proxyIndexOperation ProxyCache
-
-var (
-	ctx = context.Background()
-	rdb *redis.Client
-)
+var rdb *redis.Client
 
 // redis 初始化
 func init() {
@@ -29,8 +21,17 @@ func init() {
 		})
 }
 
+// ProxyCache 缓存层
+type ProxyCache struct {
+}
+
+// 代理层
+var (
+	proxyCacheOperation ProxyCache
+)
+
 func NewProxyIndexMap() *ProxyCache {
-	return &proxyIndexOperation
+	return &proxyCacheOperation
 }
 
 // GetVideoFavor 获取点赞状态 ret： true点赞 false未点赞

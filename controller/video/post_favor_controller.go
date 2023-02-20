@@ -39,6 +39,7 @@ func PostFavorController(ctx *gin.Context) {
 	// 调用service层
 	if err = video.PostFavor(userId, p.VideoId, p.ActionType); err != nil {
 		PostFavorFailed(ctx, err.Error())
+		return
 	}
 
 	// 点赞成功

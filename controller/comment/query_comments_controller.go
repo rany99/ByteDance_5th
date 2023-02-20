@@ -34,6 +34,7 @@ func QueryCommentListController(ctx *gin.Context) {
 	commentList, err := comment.QueryCommentList(p.VideoId)
 	if err != nil {
 		QueryCommentListFailed(ctx, err.Error())
+		return
 	}
 
 	QueryCommentListSucceed(ctx, commentList)

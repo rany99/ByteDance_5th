@@ -73,7 +73,7 @@ const (
 
 // 点赞错误信息
 const (
-	AlreadyPostFavorErr string = "您已经点过赞了，休息一下吧"
+	AlreadyPostFavorErr string = "您点的太快了，休息一下吧"
 	FavorCountZeroErr   string = "点赞数目为0"
 )
 

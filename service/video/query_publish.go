@@ -50,6 +50,7 @@ func (q *QueryPublishListByUidFlow) PackData() error {
 		return err
 	}
 	p := cache.NewProxyIndexMap()
+
 	for i := range q.videos {
 		q.videos[i].Author = userInfo
 		q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
