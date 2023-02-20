@@ -5,7 +5,7 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/util/cache"
 	"errors"
-	"log"
+	"sync"
 	"time"
 )
 
@@ -93,20 +93,27 @@ func FillVideos(userid int64, videos *[]*models.Video) (*time.Time, error) {
 	dao := models.NewUserInfoDAO()
 	p := cache.NewProxyIndexMap()
 	latestTime := (*videos)[videosLen-1].CreatedAt
+
+	wg := sync.WaitGroup{}
+	wg.Add(videosLen)
+
 	for i := 0; i < videosLen; i++ {
-		var author models.UserInfo
-		if err := dao.QueryUserInfoById((*videos)[i].UserInfoId, &author); err != nil {
-			continue
-		}
-		author.IsFollow = p.GetAFollowB(userid, author.Id)
-		(*videos)[i].Author = author
-		if userid > 0 {
-			(*videos)[i].IsFavorite = p.GetVideoFavor(userid, (*videos)[i].Id)
-			log.Println("通过cache查询点赞状态")
-			log.Println("user_id:", userid)
-			log.Println("videos[i].id:", (*videos)[i].Id)
-			log.Println("IsFavorite", p.GetVideoFavor(userid, (*videos)[i].Id))
-		}
+		go func(i int, p *cache.ProxyCache, videos *[]*models.Video) {
+			var author models.UserInfo
+			if err := dao.QueryUserInfoById((*videos)[i].UserInfoId, &author); err != nil {
+				return
+			}
+			author.IsFollow = p.GetAFollowB(userid, author.Id)
+			(*videos)[i].Author = author
+			if userid > 0 {
+				(*videos)[i].IsFavorite = p.GetVideoFavor(userid, (*videos)[i].Id)
+				//log.Println("通过cache查询点赞状态")
+				//log.Println("user_id:", userid)
+				//log.Println("videos[i].id:", (*videos)[i].Id)
+				//log.Println("IsFavorite", p.GetVideoFavor(userid, (*videos)[i].Id))
+			}
+		}(i, p, videos)
+
 	}
 	return &latestTime, nil
 }

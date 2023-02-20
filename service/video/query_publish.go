@@ -5,6 +5,7 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/util/cache"
 	"errors"
+	"sync"
 )
 
 type PublishListResponse struct {
@@ -51,10 +52,17 @@ func (q *QueryPublishListByUidFlow) PackData() error {
 	}
 	p := cache.NewProxyIndexMap()
 
+	wg := sync.WaitGroup{}
+	wg.Add(len(q.videos))
+
 	for i := range q.videos {
-		q.videos[i].Author = userInfo
-		q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
+		go func() {
+			q.videos[i].Author = userInfo
+			q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 	//log.Println("PackData:", len(q.videos))
 	q.videoList = &PublishListResponse{Videos: q.videos}
 	return nil

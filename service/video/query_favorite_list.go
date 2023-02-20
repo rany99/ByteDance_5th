@@ -2,6 +2,7 @@ package video
 
 import (
 	"ByteDance_5th/models"
+	"sync"
 )
 
 type FavoriteListResponse struct {
@@ -50,13 +51,19 @@ func (q *QueryFavoriteListFlow) GetData() error {
 	if err := models.NewVideoDao().QueryFavorListByUserId(q.uid, &q.videos); err != nil {
 		return err
 	}
-	for i := 0; i < len(q.videos); i++ {
-		var author models.UserInfo
-		if err := models.NewUserInfoDAO().QueryUserInfoById(q.videos[i].UserInfoId, &author); err != nil {
-			q.videos[i].Author = author
-		}
-		q.videos[i].IsFavorite = true
+	wg := sync.WaitGroup{}
+	wg.Add(len(q.videos))
+	for i := range q.videos {
+		go func() {
+			var author models.UserInfo
+			if err := models.NewUserInfoDAO().QueryUserInfoById(q.videos[i].UserInfoId, &author); err != nil {
+				q.videos[i].Author = author
+			}
+			q.videos[i].IsFavorite = true
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 	return nil
 }
 
