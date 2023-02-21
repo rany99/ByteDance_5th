@@ -2,6 +2,8 @@ package userinfo
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/util/cache"
+	"sync"
 )
 
 type FollowsResponse struct {
@@ -9,23 +11,25 @@ type FollowsResponse struct {
 }
 
 type QueryFollowsFlow struct {
+	uidQuery int64
 	uid      int64
 	userList []*models.UserInfo
 	*FollowsResponse
 }
 
-func QueryFollowList(uid int64) (*FollowsResponse, error) {
-	return NewQueryFollowsFlow(uid).Operation()
+func QueryFollowList(uidQuery int64, uid int64) (*FollowsResponse, error) {
+	return NewQueryFollowsFlow(uidQuery, uid).Operation()
 }
 
-func NewQueryFollowsFlow(uid int64) *QueryFollowsFlow {
+func NewQueryFollowsFlow(uidQuery int64, uid int64) *QueryFollowsFlow {
 	return &QueryFollowsFlow{
-		uid: uid,
+		uidQuery: uidQuery,
+		uid:      uid,
 	}
 }
 
 func (q *QueryFollowsFlow) Operation() (*FollowsResponse, error) {
-	if err := q.CheckJson(); err != nil {
+	if err := q.CheckJSON(); err != nil {
 		return nil, err
 	}
 	if err := q.GetData(); err != nil {
@@ -37,8 +41,8 @@ func (q *QueryFollowsFlow) Operation() (*FollowsResponse, error) {
 	return q.FollowsResponse, nil
 }
 
-func (q *QueryFollowsFlow) CheckJson() error {
-	if err := models.NewUserInfoDAO().IsUserInfoExist(q.uid); err != nil {
+func (q *QueryFollowsFlow) CheckJSON() error {
+	if err := models.NewUserInfoDAO().IsUserInfoExist(q.uidQuery); err != nil {
 		return err
 	}
 	return nil
@@ -46,21 +50,24 @@ func (q *QueryFollowsFlow) CheckJson() error {
 
 func (q *QueryFollowsFlow) GetData() error {
 	var userList []*models.UserInfo
-	//log.Println(q.uid)
-	if err := models.NewUserInfoDAO().GetFollowsById(q.uid, &userList); err != nil {
+	if err := models.NewUserInfoDAO().GetFollowsById(q.uidQuery, &userList); err != nil {
 		return err
 	}
+	p := cache.NewProxyIndexMap()
+	wg := sync.WaitGroup{}
+	wg.Add(len(userList))
 	for i := range userList {
-		userList[i].IsFollow = true
+		go func(i int, p *cache.ProxyCache) {
+			userList[i].IsFollow = p.GetAFollowB(q.uid, q.uidQuery)
+			wg.Done()
+		}(i, p)
 	}
-	//log.Println("GetData:", len(userList))
+	wg.Wait()
 	q.userList = userList
-	//log.Println("GetData:", len(q.userList))
 	return nil
 }
 
 func (q *QueryFollowsFlow) PackData() error {
-	//log.Println("QueryFollowsFlow: PackData", len(q.userList))
 	q.FollowsResponse = &FollowsResponse{UserList: q.userList}
 	return nil
 }

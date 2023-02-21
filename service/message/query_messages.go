@@ -9,11 +9,11 @@ type MessagesResponse struct {
 }
 
 type QueryMessageListFlow struct {
-	fromId     int64
-	toId       int64
-	preMsgTime int64
-	messages   []*models.Message
-	MList      *MessagesResponse
+	fromId           int64
+	toId             int64
+	preMsgTime       int64
+	messages         []*models.Message
+	messagesResponse *MessagesResponse
 }
 
 func QueryMessageList(fromId int64, toId int64, preMsgTime int64) (*MessagesResponse, error) {
@@ -38,7 +38,7 @@ func (q *QueryMessageListFlow) Operation() (*MessagesResponse, error) {
 	if err := q.PackData(); err != nil {
 		return nil, err
 	}
-	return q.MList, nil
+	return q.messagesResponse, nil
 }
 
 func (q *QueryMessageListFlow) GetData() error {
@@ -61,6 +61,6 @@ func (q *QueryMessageListFlow) CheckJSON() error {
 }
 
 func (q *QueryMessageListFlow) PackData() error {
-	q.MList = &MessagesResponse{Messages: q.messages}
+	q.messagesResponse = &MessagesResponse{Messages: q.messages}
 	return nil
 }

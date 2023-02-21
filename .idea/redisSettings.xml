@@ -15,6 +15,18 @@
           <option name="serverUrl" value="localhost:6379" />
           <option name="userName" value="" />
         </ServerConfiguration>
+        <ServerConfiguration>
+          <option name="databaseVendor" value="DatabaseVendor{name='RedisDB'}" />
+          <option name="defaultKeyFilter" value="*" />
+          <option name="label" value="dedis3" />
+          <option name="password" value="" />
+          <option name="protocalVersions" value="RESP3" />
+          <option name="sercurityInfo">
+            <SercurityInfo />
+          </option>
+          <option name="serverUrl" value="localhost:6379" />
+          <option name="userName" value="" />
+        </ServerConfiguration>
       </list>
     </option>
   </component>

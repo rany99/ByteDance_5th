@@ -52,7 +52,7 @@ func (q *QueryFeedListFlow) Do() (*FeedListResponse, error) {
 func (q *QueryFeedListFlow) IsAlreadyLogin() {
 	//userid大于零表示已经登陆
 	if q.userid > 0 {
-		//
+		//q.videos = SelectVideosByUserId(q.userid)
 	}
 	if q.latestTime.IsZero() {
 		q.latestTime = time.Now()
@@ -90,30 +90,30 @@ func FillVideos(userid int64, videos *[]*models.Video) (*time.Time, error) {
 	if videos == nil || videosLen == 0 {
 		return nil, errors.New("FillVideos" + errortype.PointerIsNilErr)
 	}
-	dao := models.NewUserInfoDAO()
+
+	//dao := models.NewUserInfoDAO()
 	p := cache.NewProxyIndexMap()
 	latestTime := (*videos)[videosLen-1].CreatedAt
 
 	wg := sync.WaitGroup{}
 	wg.Add(videosLen)
 
+	// 依据列表长度开启若干进程填入关注与喜欢等信息
 	for i := 0; i < videosLen; i++ {
 		go func(i int, p *cache.ProxyCache, videos *[]*models.Video) {
 			var author models.UserInfo
-			if err := dao.QueryUserInfoById((*videos)[i].UserInfoId, &author); err != nil {
+			if err := models.NewUserInfoDAO().QueryUserInfoById((*videos)[i].UserInfoId, &author); err != nil {
 				return
 			}
 			author.IsFollow = p.GetAFollowB(userid, author.Id)
 			(*videos)[i].Author = author
 			if userid > 0 {
 				(*videos)[i].IsFavorite = p.GetVideoFavor(userid, (*videos)[i].Id)
-				//log.Println("通过cache查询点赞状态")
-				//log.Println("user_id:", userid)
-				//log.Println("videos[i].id:", (*videos)[i].Id)
-				//log.Println("IsFavorite", p.GetVideoFavor(userid, (*videos)[i].Id))
 			}
+			wg.Done()
 		}(i, p, videos)
-
 	}
+	wg.Wait()
+
 	return &latestTime, nil
 }

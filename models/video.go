@@ -19,7 +19,7 @@ type Video struct {
 	CommentCount  int64       `json:"comment_count,omitempty"`
 	IsFavorite    bool        `json:"is_favorite,omitempty"`
 	Title         string      `json:"title,omitempty"`
-	Users         []*UserInfo `json:"-" gorm:"many2many:user_favor_videos;"`
+	Users         []*UserInfo `json:"-" gorm:"many2many:favorite_videos;"`
 	Comments      []*Comment  `json:"-"`
 	CreatedAt     time.Time   `json:"-"`
 	UpdatedAt     time.Time   `json:"-"`
@@ -105,13 +105,19 @@ func (v *VideoDao) QueryVideoListByLastTimeAndLimit(latestTime time.Time, limit 
 	return err
 }
 
-// FavoriteCountAddOneByVideoId 根据视频ID和用户ID将视频点赞数加一，并添加到user_favor_videos
+// FavoriteCountAddOneByVideoId 根据视频ID和用户ID将视频点赞数加一，并添加到favorite_videos
 func (v *VideoDao) FavoriteCountAddOneByVideoId(uid int64, vid int64) error {
 	return DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("UPDATE videos SET favorite_count = favorite_count + 1 WHERE id = ?", vid).Error; err != nil {
 			return err
 		}
-		if err := tx.Exec("INSERT INTO `user_favor_videos` (`user_info_id`,`video_id`) VALUES (?,?)", uid, vid).Error; err != nil {
+		if err := tx.Exec("UPDATE user_infos SET total_favorited = total_favorited + 1 WHERE id = ?", uid).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("UPDATE user_infos SET favorite_count = favorite_count + 1 WHERE id = ?", uid).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("INSERT INTO `favorite_videos` (`user_info_id`,`video_id`) VALUES (?,?)", uid, vid).Error; err != nil {
 			return err
 		}
 		log.Println("已经执行")
@@ -119,13 +125,19 @@ func (v *VideoDao) FavoriteCountAddOneByVideoId(uid int64, vid int64) error {
 	})
 }
 
-// FavoriteCountSubOneByVideoId 根据视频ID和用户ID将视频点赞数减一，并从user_favor_videos删除
+// FavoriteCountSubOneByVideoId 根据视频ID和用户ID将视频点赞数减一，并从favorite_videos删除
 func (v *VideoDao) FavoriteCountSubOneByVideoId(uid int64, vid int64) error {
 	return DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("UPDATE videos SET favorite_count = favorite_count - 1 WHERE id = ? AND favorite_count > 0", vid).Error; err != nil {
 			return err
 		}
-		if err := tx.Exec("DELETE FROM `user_favor_videos`  WHERE `user_info_id` = ? AND `video_id` = ?", uid, vid).Error; err != nil {
+		if err := tx.Exec("UPDATE user_infos SET total_favorited = total_favorited - 1 WHERE id = ? AND total_favorited > 0", uid).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("UPDATE user_infos SET favorite_count = favorite_count - 1 WHERE id = ? AND favorite_count > 0", uid).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("DELETE FROM `favorite_videos`  WHERE `user_info_id` = ? AND `video_id` = ?", uid, vid).Error; err != nil {
 			return err
 		}
 		return nil
@@ -134,7 +146,7 @@ func (v *VideoDao) FavoriteCountSubOneByVideoId(uid int64, vid int64) error {
 
 // QueryFavorListByUserId 获取用户点赞视频列表
 func (v *VideoDao) QueryFavorListByUserId(uid int64, list *[]*Video) error {
-	if err := DB.Raw("SELECT v.* FROM user_favor_videos u , videos v WHERE u.user_info_id = ? AND u.video_id = v.id", uid).Scan(list).Error; err != nil {
+	if err := DB.Raw("SELECT v.* FROM favorite_videos u , videos v WHERE u.user_info_id = ? AND u.video_id = v.id", uid).Scan(list).Error; err != nil {
 		return err
 	}
 	if CheckList(list) {

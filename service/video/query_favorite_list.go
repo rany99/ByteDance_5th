@@ -2,6 +2,7 @@ package video
 
 import (
 	"ByteDance_5th/models"
+	"ByteDance_5th/util/cache"
 	"sync"
 )
 
@@ -10,18 +11,20 @@ type FavoriteListResponse struct {
 }
 
 type QueryFavoriteListFlow struct {
+	uidQuery  int64
 	uid       int64
 	videos    []*models.Video
 	videoList *FavoriteListResponse
 }
 
-func QueryFavoriteList(uid int64) (*FavoriteListResponse, error) {
-	return NewQueryFavoriteListFlow(uid).Operation()
+func QueryFavoriteList(uidQuery int64, uid int64) (*FavoriteListResponse, error) {
+	return NewQueryFavoriteListFlow(uidQuery, uid).Operation()
 }
 
-func NewQueryFavoriteListFlow(uid int64) *QueryFavoriteListFlow {
+func NewQueryFavoriteListFlow(uidQuery int64, uid int64) *QueryFavoriteListFlow {
 	return &QueryFavoriteListFlow{
-		uid: uid,
+		uidQuery: uidQuery,
+		uid:      uid,
 	}
 }
 
@@ -48,20 +51,21 @@ func (q *QueryFavoriteListFlow) CheckJSON() error {
 
 // GetData 调用DAO层
 func (q *QueryFavoriteListFlow) GetData() error {
-	if err := models.NewVideoDao().QueryFavorListByUserId(q.uid, &q.videos); err != nil {
+	if err := models.NewVideoDao().QueryFavorListByUserId(q.uidQuery, &q.videos); err != nil {
 		return err
 	}
+	p := cache.NewProxyIndexMap()
 	wg := sync.WaitGroup{}
 	wg.Add(len(q.videos))
 	for i := range q.videos {
-		go func() {
+		go func(i int, videos *[]*models.Video, p *cache.ProxyCache) {
 			var author models.UserInfo
-			if err := models.NewUserInfoDAO().QueryUserInfoById(q.videos[i].UserInfoId, &author); err != nil {
-				q.videos[i].Author = author
+			if err := models.NewUserInfoDAO().QueryUserInfoById((*videos)[i].UserInfoId, &author); err == nil {
+				(*videos)[i].Author = author
 			}
-			q.videos[i].IsFavorite = true
+			(*videos)[i].IsFavorite = p.GetVideoFavor(q.uid, (*videos)[i].Id)
 			wg.Done()
-		}()
+		}(i, &q.videos, p)
 	}
 	wg.Wait()
 	return nil

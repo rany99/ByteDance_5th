@@ -14,8 +14,8 @@ type QueryFriendsResponse struct {
 }
 
 type ProxyQueryFriends struct {
-	UserId int64 `form:"user_id" validate:"required,numeric,min=1"`
-	//Token  string `form:"token"   validate:"required,jwt"`
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
 }
 
 func QueryFriendsController(ctx *gin.Context) {

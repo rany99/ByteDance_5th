@@ -1,6 +1,7 @@
 package video
 
 import (
+	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/common"
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/video"
@@ -73,6 +74,8 @@ func PublishController(ctx *gin.Context) {
 			continue
 		}
 
+		models.NewUserInfoDAO().WorkCntAddOneByUid(userId)
+		
 		PublishSucceed(ctx, file.Filename+"上传成功")
 	}
 }

@@ -13,14 +13,15 @@ type PublishListResponse struct {
 }
 
 type QueryPublishListByUidFlow struct {
+	uidQuery  int64
 	userId    int64 //当前用户id
 	videos    []*models.Video
 	videoList *PublishListResponse
 }
 
 // QueryPublishListByUid 通过UID返回
-func QueryPublishListByUid(userid int64) (*PublishListResponse, error) {
-	return NewQueryUserVideoListByUid(userid).Operation()
+func QueryPublishListByUid(uidQuery int64, userid int64) (*PublishListResponse, error) {
+	return NewQueryUserVideoListByUid(uidQuery, userid).Operation()
 }
 
 func (q *QueryPublishListByUidFlow) Operation() (*PublishListResponse, error) {
@@ -37,30 +38,33 @@ func (q *QueryPublishListByUidFlow) IsUidExist() error {
 	return models.NewUserInfoDAO().IsUserInfoExist(q.userId)
 }
 
-func NewQueryUserVideoListByUid(userid int64) *QueryPublishListByUidFlow {
-	return &QueryPublishListByUidFlow{userId: userid}
+func NewQueryUserVideoListByUid(uidQuery int64, userid int64) *QueryPublishListByUidFlow {
+	return &QueryPublishListByUidFlow{
+		uidQuery: uidQuery,
+		userId:   userid}
 }
 
 // PackData 封装数据
 func (q *QueryPublishListByUidFlow) PackData() error {
+	var userInfo models.UserInfo
+	if err := models.NewUserInfoDAO().QueryUserInfoById(q.uidQuery, &userInfo); err != nil {
+		return err
+	}
 	if err := models.NewVideoDao().QueryVideoListByUserId(q.userId, &q.videos); err != nil {
 		return err
 	}
-	var userInfo models.UserInfo
-	if err := models.NewUserInfoDAO().QueryUserInfoById(q.userId, &userInfo); err != nil {
-		return err
-	}
+
 	p := cache.NewProxyIndexMap()
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(q.videos))
 
 	for i := range q.videos {
-		go func() {
-			q.videos[i].Author = userInfo
+		go func(i int, userInfo *models.UserInfo) {
+			q.videos[i].Author = *userInfo
 			q.videos[i].IsFavorite = p.GetVideoFavor(q.userId, q.videos[i].Id)
 			wg.Done()
-		}()
+		}(i, &userInfo)
 	}
 	wg.Wait()
 	//log.Println("PackData:", len(q.videos))

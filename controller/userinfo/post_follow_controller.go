@@ -40,12 +40,16 @@ func PostFollowController(ctx *gin.Context) {
 		switch stateCode {
 		case constantval.FollowUserNoExist:
 			PostFollowFailed(ctx, errortype.FollowUserNoExistErr)
+			return
 		case constantval.PostFollowActionTypeWrong:
 			PostFollowFailed(ctx, errortype.PostFollowActionTypeErr)
+			return
 		case constantval.CantFollowSelf:
 			PostFollowFailed(ctx, errortype.CantFollowSelfErr)
+			return
 		case constantval.FollowAgain:
 			PostFollowFailed(ctx, errortype.FollowAgainErr)
+			return
 		}
 	}
 
@@ -56,7 +60,7 @@ func PostFollowController(ctx *gin.Context) {
 func PostFollowSucceed(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, common.CommonResponse{
 		StatusCode: 0,
-		StatusMsg:  "关注成功",
+		StatusMsg:  "操作成功",
 	})
 }
 

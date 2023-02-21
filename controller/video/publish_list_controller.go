@@ -13,6 +13,11 @@ type QueryPublishListResponse struct {
 	*video.PublishListResponse
 }
 
+type ProxyQueryPublishList struct {
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
+}
+
 // QueryPublishListController Controller层
 func QueryPublishListController(ctx *gin.Context) {
 
@@ -24,8 +29,19 @@ func QueryPublishListController(ctx *gin.Context) {
 		return
 	}
 
+	// 绑定数据
+	var p ProxyQueryPublishList
+	err := ctx.ShouldBindQuery(&p)
+
+	// 校验数据
+	err = common.Validate.Struct(p)
+	if err != nil {
+		QueryPublishListFailed(ctx, errortype.DataNotMatchErr)
+		return
+	}
+
 	// 调用service层
-	publishListResponse, err := video.QueryPublishListByUid(uid)
+	publishListResponse, err := video.QueryPublishListByUid(p.UserId, uid)
 	if err != nil {
 		QueryPublishListFailed(ctx, err.Error())
 		return

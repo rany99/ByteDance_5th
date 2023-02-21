@@ -1,7 +1,7 @@
 package information
 
 import (
-	"ByteDance_5th/pkg/common"
+	"ByteDance_5th/pkg/config"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -14,6 +14,6 @@ const AvatarCnt int = 16
 func GetAvatarUrl() string {
 	i := rand.Intn(100)
 	fileName := strconv.Itoa(i%AvatarCnt) + ".jpg"
-	var url string = fmt.Sprintf("http://%s:%d/static/avatar/%s", common.Conf.SE.IP, common.Conf.SE.Port, fileName)
+	var url string = fmt.Sprintf("http://%s:%d/static/avatar/%s", config.Conf.SE.IP, config.Conf.SE.Port, fileName)
 	return url
 }

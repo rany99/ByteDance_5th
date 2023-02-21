@@ -33,7 +33,7 @@ func NewPostFollowFlow(uid int64, toUserId int64, actionType int64) *PostFollowF
 
 func (p *PostFollowFlow) Do() int {
 	stateCode := 0
-	if stateCode = p.CheckJson(); stateCode != NoErrOR0 {
+	if stateCode = p.CheckJSON(); stateCode != NoErrOR0 {
 		return stateCode
 	}
 	if stateCode = p.DoFollowAction(); stateCode != NoErrOR0 {
@@ -42,7 +42,7 @@ func (p *PostFollowFlow) Do() int {
 	return stateCode
 }
 
-func (p *PostFollowFlow) CheckJson() int {
+func (p *PostFollowFlow) CheckJSON() int {
 	if err := models.NewUserInfoDAO().IsUserInfoExist(p.uid); err != nil {
 		return ERRTYPE1
 	}
@@ -63,13 +63,15 @@ func (p *PostFollowFlow) DoFollowAction() int {
 	case 1:
 		if err := userDAO.AFollowB(p.uid, p.toUserId); err != nil {
 			stateCode = ERRTYPE4
+		} else {
+			cache.NewProxyIndexMap().SetAFollowB(p.uid, p.toUserId, true)
 		}
-		cache.NewProxyIndexMap().SetAFollowB(p.uid, p.toUserId, true)
 	case 2:
 		if err := userDAO.NoAFollowB(p.uid, p.toUserId); err != nil {
 			stateCode = ERRTYPE4
+		} else {
+			cache.NewProxyIndexMap().SetAFollowB(p.uid, p.toUserId, false)
 		}
-		cache.NewProxyIndexMap().SetAFollowB(p.uid, p.toUserId, false)
 	default:
 		stateCode = ERRTYPE2
 	}

@@ -4,6 +4,7 @@ import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/util/cache"
 	"log"
+	"sync"
 )
 
 type FriendsResponse struct {
@@ -56,15 +57,22 @@ func (q *QueryFriendsFlow) GetData() error {
 		userList[i].IsFollow = cache.NewProxyIndexMap().GetAFollowB(q.uid, userList[i].Id)
 	}
 	friendList := make([]*models.Friend, len(userList))
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(userList))
 	for i, u := range userList {
-		//GetLatestMsgByUid 的 err 可能由两用户没有进行过消息通信造成，非致命，继续执行
-		msg, msgType, _ := GetLatestMsgByUid(q.uid, u.Id)
-		friendList[i] = &models.Friend{
-			UserInfo: *u,
-			Message:  msg,
-			MsgType:  msgType,
-		}
+		go func(i int, u *models.UserInfo, friendList *[]*models.Friend) {
+			//GetLatestMsgByUid 的 err 可能由两用户没有进行过消息通信造成，非致命，继续执行
+			msg, msgType, _ := GetLatestMsgByUid(q.uid, u.Id)
+			(*friendList)[i] = &models.Friend{
+				UserInfo: *u,
+				Message:  msg,
+				MsgType:  msgType,
+			}
+			wg.Done()
+		}(i, u, &friendList)
 	}
+	wg.Wait()
 	q.userList = friendList
 	//log.Println(len(friendList))
 	return nil

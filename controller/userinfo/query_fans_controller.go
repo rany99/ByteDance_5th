@@ -30,8 +30,16 @@ func QueryFansController(ctx *gin.Context) {
 		return
 	}
 
+	// 解析user_id
+	rawUid, _ := ctx.Get("user_id")
+	uid, ok := rawUid.(int64)
+	if !ok {
+		PostFollowFailed(ctx, errortype.ParseUserIdErr)
+		return
+	}
+
 	// 调用service层
-	fansResponse, err := userinfo.QueryFans(p.UserId)
+	fansResponse, err := userinfo.QueryFans(p.UserId, uid)
 	if err != nil {
 		QueryFansFailed(ctx, err.Error())
 		return

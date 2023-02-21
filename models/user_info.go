@@ -22,8 +22,8 @@ type UserInfo struct {
 	FavoriteCount   int64       `json:"favorite_count" gorm:"favorite_count,omitempty"`
 	User            *User       `json:"-"`
 	Videos          []*Video    `json:"-"`
-	Follows         []*UserInfo `json:"-" gorm:"many2many:user_relations;"`
-	FavorVideos     []*Video    `json:"-" gorm:"many2many:user_favor_videos;"`
+	Follows         []*UserInfo `json:"-" gorm:"many2many:follow_relations;"`
+	FavorVideos     []*Video    `json:"-" gorm:"many2many:favorite_videos;"`
 	Comments        []*Comment  `json:"-"`
 	Messages        []*Message  `json:"-"`
 }
@@ -84,7 +84,7 @@ func (u *UserInfoDao) NoAFollowB(a, b int64) error {
 		if err := tx.Exec("UPDATE user_infos SET follower_count=follower_count-1 WHERE id = ? AND follower_count>0", b).Error; err != nil {
 			return err
 		}
-		if err := tx.Exec("DELETE FROM `user_relations` WHERE user_info_id=? AND follow_id=?", a, b).Error; err != nil {
+		if err := tx.Exec("DELETE FROM `follow_relations` WHERE user_info_id=? AND follow_id=?", a, b).Error; err != nil {
 			return err
 		}
 		return nil
@@ -100,7 +100,7 @@ func (u *UserInfoDao) AFollowB(a, b int64) error {
 		if err := tx.Exec("UPDATE user_infos SET follower_count=follower_count+1 WHERE id = ?", b).Error; err != nil {
 			return err
 		}
-		if err := tx.Exec("INSERT INTO `user_relations` (`user_info_id`,`follow_id`) VALUES (?,?)", a, b).Error; err != nil {
+		if err := tx.Exec("INSERT INTO `follow_relations` (`user_info_id`,`follow_id`) VALUES (?,?)", a, b).Error; err != nil {
 			return err
 		}
 		return nil
@@ -112,7 +112,7 @@ func (u *UserInfoDao) GetFollowsById(id int64, userList *[]*UserInfo) error {
 	if userList == nil {
 		return errors.New("GetFollowsById" + errortype.PointerIsNilErr)
 	}
-	if err := DB.Raw("SELECT u.* FROM user_relations r, user_infos u WHERE r.user_info_id = ? AND r.follow_id = u.id", id).Scan(userList).Error; err != nil {
+	if err := DB.Raw("SELECT u.* FROM follow_relations r, user_infos u WHERE r.user_info_id = ? AND r.follow_id = u.id", id).Scan(userList).Error; err != nil {
 		return err
 	}
 	//log.Println("GetFollowListById", len(*userList))
@@ -124,48 +124,20 @@ func (u *UserInfoDao) GetFansById(id int64, userList *[]*UserInfo) error {
 	if userList == nil {
 		return errors.New("GetFansById" + errortype.UserNoExistErr)
 	}
-	if err := DB.Raw("SELECT u.* FROM user_relations r, user_infos u WHERE r.follow_id = ? AND r.user_info_id = u.id", id).Scan(userList).Error; err != nil {
+	if err := DB.Raw("SELECT u.* FROM follow_relations r, user_infos u WHERE r.follow_id = ? AND r.user_info_id = u.id", id).Scan(userList).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-// select a.user_id from follower as a inner join follower as b on a.follower_id = '1' and b.follower_id = '1'
-
+// GetFriendsById 获取好友列表
 func (u *UserInfoDao) GetFriendsById(id int64, userList *[]*UserInfo) error {
 	if userList == nil {
 		return errors.New("GetFriendsById" + errortype.UserNoExistErr)
 	}
-	if err := DB.Raw("SELECT * FROM user_infos WHERE user_infos.id IN (SELECT a.user_info_id FROM user_relations a JOIN user_relations b ON a.user_info_id  = b.follow_id AND a.follow_id = b.user_info_id  AND a.follow_id = ?)", id).Scan(userList).Error; err != nil {
+	if err := DB.Raw("SELECT * FROM user_infos WHERE user_infos.id IN (SELECT a.user_info_id FROM follow_relations a JOIN follow_relations b ON a.user_info_id  = b.follow_id AND a.follow_id = b.user_info_id  AND a.follow_id = ?)", id).Scan(userList).Error; err != nil {
 		return err
 	}
-	//for _, f := range followList {
-	//	log.Println(f)
-	//}
-	//log.Println("followList:", len(followList))
-	//var fansList []int64
-	//if err := DB.Raw("SELECT u.id FROM user_relations r, user_infos u WHERE r.user_info_id = ? AND r.follow_id = u.id", id).Scan(&fansList).Error; err != nil {
-	//	return err
-	//}
-	//log.Println(len(followList), len(fansList))
-	//vis := map[int64]bool{}
-	//for _, f := range followList {
-	//	vis[f] = true
-	//}
-	//var friends []*userInfoResponse
-	//cnt := 0
-	//for _, f := range fansList {
-	//	if _, ok := vis[f]; ok {
-	//		log.Println(f)
-	//		friends = append(friends, &userInfoResponse{})
-	//		_ = u.QueryUserInfoById(f, friends[cnt])
-	//		cnt++
-	//	}
-	//}
-	//log.Println(len(friends))
-	//log.Println("-", friends[0].Id, friends[0].Name)
-	//userList = &friends
-	//log.Println(len(*userList))
 	return nil
 }
 
@@ -178,5 +150,16 @@ func (u *UserInfoDao) IsUserInfoExist(id int64) error {
 	if userInfo.Id == 0 {
 		return errors.New(errortype.UserNoExistErr)
 	}
+	return nil
+}
+
+// WorkCntAddOneByUid 发布成功后将作品数量加一
+func (u *UserInfoDao) WorkCntAddOneByUid(uid int64) error {
+	return DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("UPDATE user_infos SET work_count = work_count + 1 WHERE id = ?", uid).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 	return nil
 }

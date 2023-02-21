@@ -4,6 +4,7 @@ import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/pkg/errortype"
 	"errors"
+	"sync"
 )
 
 type CommentsResponse struct {
@@ -79,10 +80,17 @@ func FillCommentList(comments *[]*models.Comment) error {
 	if commentsLen == 0 {
 		return errors.New(errortype.VideoListEmptyErr)
 	}
-	userInfoDAO := models.NewUserInfoDAO()
-	for _, c := range *comments {
-		_ = userInfoDAO.QueryUserInfoById(c.UserInfoId, &c.User)
-		c.CreateDate = c.CreatedAt.Format("1-2")
+
+	wg := sync.WaitGroup{}
+	wg.Add(commentsLen)
+	for _, comment := range *comments {
+		go func(comment *models.Comment) {
+			_ = models.NewUserInfoDAO().QueryUserInfoById(comment.UserInfoId, &comment.User)
+			comment.CreateDate = comment.CreatedAt.Format("1-2")
+			wg.Done()
+		}(comment)
 	}
+	wg.Wait()
+
 	return nil
 }

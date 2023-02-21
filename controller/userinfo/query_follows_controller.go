@@ -14,8 +14,8 @@ type QueryFollowsResponse struct {
 }
 
 type ProxyQueryFollows struct {
-	UserId int64 `form:"user_id" validate:"required,numeric,min=1"`
-	//Token  string `form:"token"   validate:"required,jwt"`
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
 }
 
 func QueryFollowsController(ctx *gin.Context) {
@@ -31,8 +31,16 @@ func QueryFollowsController(ctx *gin.Context) {
 		return
 	}
 
+	// 解析当前uid
+	rawUid, _ := ctx.Get("user_id")
+	uid, ok := rawUid.(int64)
+	if !ok {
+		PostFollowFailed(ctx, errortype.ParseUserIdErr)
+		return
+	}
+
 	// 调用service层
-	followsResponse, err := userinfo.QueryFollowList(p.UserId)
+	followsResponse, err := userinfo.QueryFollowList(p.UserId, uid)
 	if err != nil {
 		QueryFollowsFailed(ctx, err.Error())
 		return

@@ -13,6 +13,11 @@ type QueryFavoriteListResponse struct {
 	*video.FavoriteListResponse
 }
 
+type ProxyQueryFavoriteList struct {
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
+}
+
 func QueryFavoriteListController(ctx *gin.Context) {
 
 	// 解析uid
@@ -23,8 +28,16 @@ func QueryFavoriteListController(ctx *gin.Context) {
 		return
 	}
 
+	var p ProxyQueryFavoriteList
+	err := ctx.ShouldBindQuery(&p)
+	err = common.Validate.Struct(p)
+	if err != nil {
+		QueryFavoriteListFailed(ctx, errortype.DataNotMatchErr)
+		return
+	}
+
 	// 调用service层
-	favoriteListResponse, err := video.QueryFavoriteList(uid)
+	favoriteListResponse, err := video.QueryFavoriteList(p.UserId, uid)
 	if err != nil {
 		QueryFavoriteListFailed(ctx, err.Error())
 		return

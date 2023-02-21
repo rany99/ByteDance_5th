@@ -3,6 +3,7 @@ package userinfo
 import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/util/cache"
+	"sync"
 )
 
 type FansResponse struct {
@@ -10,21 +11,25 @@ type FansResponse struct {
 }
 
 type QueryFansFlow struct {
+	uidQuery int64
 	uid      int64
 	userList []*models.UserInfo
 	*FansResponse
 }
 
-func QueryFans(uid int64) (*FansResponse, error) {
-	return NewQueryFansFlow(uid).Operation()
+func QueryFans(uidQuery int64, uid int64) (*FansResponse, error) {
+	return NewQueryFansFlow(uidQuery, uid).Operation()
 }
 
-func NewQueryFansFlow(uid int64) *QueryFansFlow {
-	return &QueryFansFlow{uid: uid}
+func NewQueryFansFlow(uidQuery int64, uid int64) *QueryFansFlow {
+	return &QueryFansFlow{
+		uidQuery: uidQuery,
+		uid:      uid,
+	}
 }
 
 func (q *QueryFansFlow) Operation() (*FansResponse, error) {
-	if err := q.CheckJson(); err != nil {
+	if err := q.CheckJSON(); err != nil {
 		return nil, err
 	}
 	if err := q.GetData(); err != nil {
@@ -36,7 +41,7 @@ func (q *QueryFansFlow) Operation() (*FansResponse, error) {
 	return q.FansResponse, nil
 }
 
-func (q *QueryFansFlow) CheckJson() error {
+func (q *QueryFansFlow) CheckJSON() error {
 	if err := models.NewUserInfoDAO().IsUserInfoExist(q.uid); err != nil {
 		return err
 	}
@@ -44,14 +49,19 @@ func (q *QueryFansFlow) CheckJson() error {
 }
 
 func (q *QueryFansFlow) GetData() error {
-	//var userList []*models.userInfoResponse
-	if err := models.NewUserInfoDAO().GetFansById(q.uid, &q.userList); err != nil {
+	if err := models.NewUserInfoDAO().GetFansById(q.uidQuery, &q.userList); err != nil {
 		return err
 	}
-	//log.Println("server层：列表长度", len(userList))
-	for i := 0; i < len(q.userList); i++ {
-		q.userList[i].IsFollow = cache.NewProxyIndexMap().GetAFollowB(q.uid, q.userList[i].Id)
+	p := cache.NewProxyIndexMap()
+	wg := sync.WaitGroup{}
+	wg.Add(len(q.userList))
+	for i := range q.userList {
+		go func(i int, p *cache.ProxyCache) {
+			q.userList[i].IsFollow = cache.NewProxyIndexMap().GetAFollowB(q.uid, q.userList[i].Id)
+			wg.Done()
+		}(i, p)
 	}
+	wg.Wait()
 	return nil
 }
 
