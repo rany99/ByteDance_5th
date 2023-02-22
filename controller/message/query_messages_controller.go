@@ -5,7 +5,6 @@ import (
 	"ByteDance_5th/pkg/errortype"
 	"ByteDance_5th/service/message"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"time"
 )
@@ -45,7 +44,7 @@ func QueryMessageListController(ctx *gin.Context) {
 	if p.PreMsgTime == 0 {
 		p.PreMsgTime = time.Now().Unix()
 	}
-	log.Println("PreMsgTime:", p.PreMsgTime)
+	//log.Println("PreMsgTime:", p.PreMsgTime)
 
 	// 调用service层
 	messagesResponse, err := message.QueryMessageList(fromId, p.ToUserId, p.PreMsgTime)

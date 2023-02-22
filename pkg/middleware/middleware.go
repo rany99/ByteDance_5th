@@ -51,7 +51,7 @@ func JwtMiddleware() gin.HandlerFunc {
 	}
 }
 
-func ShaMiddleWare() gin.HandlerFunc {
+func Sha1MiddleWare() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		password := context.Query("password")
 		if password == "" {
@@ -62,7 +62,7 @@ func ShaMiddleWare() gin.HandlerFunc {
 	}
 }
 
-func NoAuthToGetUserId() gin.HandlerFunc {
+func CheckToken() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		rawId := context.Query("user_id")
 		if rawId == "" {
@@ -84,6 +84,7 @@ func NoAuthToGetUserId() gin.HandlerFunc {
 	}
 }
 
+// Sha1 采用 SHA1 进行密码加密
 func Sha1(str string) string {
 	o := sha1.New()
 	o.Write([]byte(str))

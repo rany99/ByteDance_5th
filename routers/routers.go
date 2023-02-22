@@ -27,9 +27,9 @@ func InitRouters() *gin.Engine {
 	userGroup := BaseGroup.Group("/user")
 	{
 		//用户注册
-		userGroup.POST("/register/", middleware.ShaMiddleWare(), user.RegisterController)
+		userGroup.POST("/register/", middleware.Sha1MiddleWare(), user.RegisterController)
 		//用户登录
-		userGroup.POST("/login/", middleware.ShaMiddleWare(), user.LoginController)
+		userGroup.POST("/login/", middleware.Sha1MiddleWare(), user.LoginController)
 		//用户信息
 		userGroup.GET("/", middleware.JwtMiddleware(), userinfo.QueryUserInfoController)
 	}
@@ -38,7 +38,7 @@ func InitRouters() *gin.Engine {
 		//投稿接口
 		publish.POST("/action/", middleware.JwtMiddleware(), video.PublishController)
 		//发布列表
-		publish.GET("/list/", middleware.NoAuthToGetUserId(), video.QueryPublishListController)
+		publish.GET("/list/", middleware.CheckToken(), video.QueryPublishListController)
 	}
 
 	//互动接口
@@ -47,7 +47,7 @@ func InitRouters() *gin.Engine {
 		//赞操作
 		favorite.POST("/action/", middleware.JwtMiddleware(), video.PostFavorController)
 		//喜欢列表
-		favorite.GET("/list/", middleware.NoAuthToGetUserId(), video.QueryFavoriteListController)
+		favorite.GET("/list/", middleware.CheckToken(), video.QueryFavoriteListController)
 	}
 	commentGroup := BaseGroup.Group("/comment")
 	{
@@ -63,11 +63,11 @@ func InitRouters() *gin.Engine {
 		//关注操作
 		relation.POST("/action/", middleware.JwtMiddleware(), userinfo.PostFollowController)
 		//关注列表
-		relation.GET("/follow/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFollowsController)
+		relation.GET("/follow/list/", middleware.CheckToken(), userinfo.QueryFollowsController)
 		//粉丝列表
-		relation.GET("/follower/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFansController)
+		relation.GET("/follower/list/", middleware.CheckToken(), userinfo.QueryFansController)
 		//朋友列表
-		relation.GET("/friend/list/", middleware.NoAuthToGetUserId(), userinfo.QueryFriendsController)
+		relation.GET("/friend/list/", middleware.CheckToken(), userinfo.QueryFriendsController)
 	}
 
 	//消息接口
