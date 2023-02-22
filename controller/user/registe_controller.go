@@ -18,6 +18,10 @@ func RegisterController(ctx *gin.Context) {
 		RegisterFailed(ctx, errortype.ParsePasswordErr)
 		return
 	}
+	//if !(user.MinPasswordLen <= len(password) && len(password) <= user.MaxPasswordLen) {
+	//	RegisterFailed(ctx, "密码最短5，最长32位")
+	//	return
+	//}
 
 	// 调用Service层
 	registerResponse, err := user.PostUserLogin(username, password)

@@ -1,0 +1,181 @@
+卷 开发 的文件夹 PATH 列表
+卷序列号为 A438-86C5
+D:.
+│  go.mod
+│  go.sum
+│  main.go
+│  tree.txt
+│  
+├─.idea
+│  │  .gitignore
+│  │  ByteDance_5th.iml
+│  │  dataSources.local.xml
+│  │  dataSources.xml
+│  │  modules.xml
+│  │  redisSettings.xml
+│  │  sqldialects.xml
+│  │  thriftCompiler.xml
+│  │  vcs.xml
+│  │  workspace.xml
+│  │  
+│  └─dataSources
+│      │  98ad4391-6d39-4de9-9477-ffa9a25076e5.xml
+│      │  
+│      └─98ad4391-6d39-4de9-9477-ffa9a25076e5
+│          └─storage_v2
+│              └─_src_
+│                  └─schema
+│                          information_schema.FNRwLQ.meta
+│                          mysql.osA4Bg.meta
+│                          performance_schema.kIw0nw.meta
+│                          sys.zb4BAA.meta
+│                          
+├─controller
+│  ├─comment
+│  │      post_coment_controller.go
+│  │      query_comments_controller.go
+│  │      
+│  ├─message
+│  │      post_message_controller.go
+│  │      query_messages_controller.go
+│  │      
+│  ├─user
+│  │      login_controller.go
+│  │      registe_controller.go
+│  │      
+│  ├─userinfo
+│  │      post_follow_controller.go
+│  │      query_fans_controller.go
+│  │      query_follows_controller.go
+│  │      query_friends_controller.go
+│  │      query_userinfo_controller.go
+│  │      
+│  └─video
+│          post_favor_controller.go
+│          publish_controller.go
+│          publish_list_controller.go
+│          query_favorite_list_controller.go
+│          query_feed_list_controller.go
+│          
+├─models
+│      comment.go
+│      friend.go
+│      init_database.go
+│      init_database_test.go
+│      message.go
+│      user.go
+│      user_info.go
+│      video.go
+│      
+├─pkg
+│  ├─common
+│  │      common.go
+│  │      
+│  ├─config
+│  │      config.go
+│  │      config.toml
+│  │      
+│  ├─constantval
+│  │      constant.go
+│  │      
+│  ├─errortype
+│  │      errortype.go
+│  │      
+│  └─middleware
+│          middleware.go
+│          
+├─public
+│  ├─avatar
+│  │      0.jpg
+│  │      1.jpg
+│  │      10.jpg
+│  │      11.jpg
+│  │      12.jpg
+│  │      13.jpg
+│  │      14.jpg
+│  │      15.jpg
+│  │      2.jpg
+│  │      3.jpg
+│  │      4.jpg
+│  │      5.jpg
+│  │      6.jpg
+│  │      7.jpg
+│  │      8.jpg
+│  │      9.jpg
+│  │      
+│  ├─background
+│  │      0.jpg
+│  │      1.jpg
+│  │      2.jpg
+│  │      3.jpg
+│  │      4.jpg
+│  │      5.jpg
+│  │      
+│  ├─cover
+│  │      158609718942630912.png
+│  │      158609749622916096.png
+│  │      158609764296688640.png
+│  │      158609779300762624.png
+│  │      158609789141648384.png
+│  │      158609905414046720.png
+│  │      158610999424844800.png
+│  │      158613308457354240.png
+│  │      158646981791581184.png
+│  │      158647048898348032.png
+│  │      158648749486244864.png
+│  │      
+│  └─video
+│          158609718942630912.mp4
+│          158609749622916096.mp4
+│          158609764296688640.mp4
+│          158609779300762624.mp4
+│          158609789141648384.mp4
+│          158609905414046720.mp4
+│          158610999424844800.mp4
+│          158613308457354240.mp4
+│          158646981791581184.mp4
+│          158647048898348032.mp4
+│          158648749486244864.mp4
+│          
+├─routers
+│      routers.go
+│      
+├─service
+│  ├─comment
+│  │      post_comment.go
+│  │      query_comments.go
+│  │      
+│  ├─message
+│  │      post_message.go
+│  │      query_messages.go
+│  │      
+│  ├─user
+│  │      post_login.go
+│  │      query_login.go
+│  │      
+│  ├─userinfo
+│  │      post_follow.go
+│  │      query_fans.go
+│  │      query_follows.go
+│  │      query_friends.go
+│  │      
+│  └─video
+│          post_favor.go
+│          publish.go
+│          query_favorite_list.go
+│          query_feed_list.go
+│          query_publish.go
+│          
+└─util
+    │  jwt.go
+    │  snowflake.go
+    │  
+    ├─cache
+    │      cache.go
+    │      
+    └─information
+            avatar.go
+            backGround.go
+            cover.go
+            signature.go
+            

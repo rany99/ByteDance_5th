@@ -8,7 +8,11 @@ import (
 	"log"
 )
 
-const MaxNameLen = 100
+const (
+	MaxNameLen     = 32
+	MaxPasswordLen = 32
+	MinPasswordLen = 5
+)
 
 type LoginResponse struct {
 	UserId int64  `json:"user_id"`

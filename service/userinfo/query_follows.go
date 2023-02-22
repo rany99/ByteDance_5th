@@ -3,6 +3,7 @@ package userinfo
 import (
 	"ByteDance_5th/models"
 	"ByteDance_5th/util/cache"
+	"log"
 	"sync"
 )
 
@@ -49,6 +50,8 @@ func (q *QueryFollowsFlow) CheckJSON() error {
 }
 
 func (q *QueryFollowsFlow) GetData() error {
+	log.Println(q.uid)
+	log.Println(q.uidQuery)
 	var userList []*models.UserInfo
 	if err := models.NewUserInfoDAO().GetFollowsById(q.uidQuery, &userList); err != nil {
 		return err
@@ -58,7 +61,7 @@ func (q *QueryFollowsFlow) GetData() error {
 	wg.Add(len(userList))
 	for i := range userList {
 		go func(i int, p *cache.ProxyCache) {
-			userList[i].IsFollow = p.GetAFollowB(q.uid, q.uidQuery)
+			userList[i].IsFollow = p.GetAFollowB(q.uid, userList[i].Id)
 			wg.Done()
 		}(i, p)
 	}
