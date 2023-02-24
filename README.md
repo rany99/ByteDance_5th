@@ -11,7 +11,7 @@ ByteDance_5th ： 基于 Gin 框架与 Gorm 框架以及 Redis 实现的极简�
 5. 抖声：app-release.apk
 1.2 配置信息
 1. 请进入 ByteDance_5th\pkg\config\config.toml 修改相应的 MySQL、Redis 及 Server 端口信息
-2. 请进入 ByteDance_5th\pkg\config\config.go 将 tomlAddr 修改为 config.toml 在本机的绝对路径
+2. 请进入 ByteDance_5th\pkg\config\config.go 将 tomlAddr 修改为 config.toml 在本机的绝对路径\
 1.3 项目启动
 cd .\ByteDance_5th
 go run main.go
